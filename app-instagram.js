@@ -94,7 +94,12 @@ function ringAvatar(key, cls = '') {
 function photo(image, alt, seed) {
   let h = 0;
   for (const c of String(seed)) h = (h * 31 + c.charCodeAt(0)) % 360;
-  return `<span class="ig-photo" style="--h:${h}"><span class="ig-ph-label">${esc(alt || '사진')}</span>${image ? `<img src="${esc(image)}" alt="" draggable="false" onerror="this.remove()">` : ''}</span>`;
+  // .mp4 / .mov / .webm 이면 소리 없이 반복 재생되는 영상으로
+  const isVideo = /\.(mp4|mov|webm)$/i.test(image || '');
+  const media = !image ? ''
+    : isVideo ? `<video src="${esc(image)}" autoplay muted loop playsinline preload="metadata" onerror="this.remove()"></video>`
+    : `<img src="${esc(image)}" alt="" draggable="false" onerror="this.remove()">`;
+  return `<span class="ig-photo" style="--h:${h}"><span class="ig-ph-label">${esc(alt || '사진')}</span>${media}</span>`;
 }
 
 // 댓글·캡션 속 @아이디 를 파란 링크로

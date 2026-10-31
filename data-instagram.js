@@ -8,6 +8,8 @@
 //  [사람 표시]  by / from 에는 아래 IG_ACCOUNTS 의 열쇠 이름을 씁니다.
 //   'jay' = 종성, 'gf' = 여자친구(방문자), 'jaeyoon' = 심재윤, 'seonghoon' = 박성훈, 'seoa' = 여자 동기
 //
+//  [영상]  image 에 .mp4 파일 이름을 적으면 소리 없이 반복 재생 (릴스·스토리에 좋아요)
+//
 //  [프로필 사진]  avatar 에 적힌 파일 이름으로 사진을 올리면 자동 적용 (없으면 기본 모양)
 //
 //  [댓글과 답글]
@@ -164,7 +166,7 @@ export const IG_DMS = [
     with: 'gf',
     seen: true,
     messages: [
-      { from: 'them', at: '2026-10-27 23:12', share: { kind: 'reel', by: 'dog', image: 'dm-reel-dog.jpg', alt: '강아지 릴스', caption: '산책 가자는 말에 고장 난 댕댕이 🐶' } },
+      { from: 'them', at: '2026-10-27 23:12', share: { kind: 'reel', by: 'dog', image: 'dm-reel-dog.mp4', alt: '강아지 릴스', caption: '산책 가자는 말에 고장 난 댕댕이 🐶' } },
       { from: 'me',   at: '2026-10-27 23:15', text: '귀엽다 ㅎㅎㅎ {name} 닮았어' },
       { from: 'them', at: '2026-10-29 20:31', share: { kind: 'post', by: 'food', image: 'dm-post-food.jpg', alt: '맛집 소개 게시물', caption: '웨이팅 필수! 생면 파스타 맛집 🍝' } },
       { from: 'me',   at: '2026-10-29 20:34', text: '이번 주말에 갈까?' },
