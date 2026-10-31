@@ -22,10 +22,10 @@ export function mediaHtml(file, alt, { thumb = false, contain = false } = {}) {
   let m = '';
   if (file && isVideo(file)) {
     m = thumb
-      ? `<video src="${esc(file)}#t=0.1" muted playsinline preload="metadata" onerror="this.remove()"></video>`
-      : `<video src="${esc(file)}" autoplay muted loop playsinline controls onerror="this.remove()"></video>`;
+      ? `<video src="${esc(file)}#t=0.1" muted playsinline preload="metadata" onloadeddata="this.classList.add('ok')" onerror="this.parentNode.classList.add('missing');this.remove()"></video>`
+      : `<video src="${esc(file)}" autoplay muted loop playsinline controls onloadeddata="this.classList.add('ok')" onerror="this.parentNode.classList.add('missing');this.remove()"></video>`;
   } else if (file) {
-    m = `<img src="${esc(file)}" alt="" draggable="false" onerror="this.remove()">`;
+    m = `<img src="${esc(file)}" alt="" draggable="false" decoding="async" onload="this.classList.add('ok')" onerror="this.parentNode.classList.add('missing');this.remove()">`;
   }
-  return `<span class="mph${fit}" style="--h:${hueOf(file || alt)}"><span class="mph-label">${esc(alt || '')}</span>${m}</span>`;
+  return `<span class="mph${fit}${file ? ' has-media' : ''}" style="--h:${hueOf(file || alt)}"><span class="mph-label">${esc(alt || '')}</span>${m}</span>`;
 }

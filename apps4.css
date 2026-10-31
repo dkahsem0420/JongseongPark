@@ -231,3 +231,11 @@
 .mu-plbtns { display: flex; gap: 12px; width: 100%; margin-top: 16px; }
 .mu-plbtns button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; height: 46px; border-radius: 10px; background: #F2F2F7; color: #FA2D48; font-size: 16px; font-weight: 600; }
 .mu-plcount { padding: 14px 16px; font-size: 14px; color: #8e8e93; }
+
+/* ── 사진 로딩: 받는 동안 회색, 다 받으면 페이드인, 파일이 없을 때만 설명 글자 ── */
+.has-media { background: #EFEFEF !important; }
+.has-media.missing { background: linear-gradient(135deg, hsl(var(--h) 22% 86%), hsl(calc(var(--h) + 40) 20% 74%)) !important; }
+.has-media:not(.missing) > .ig-ph-label, .has-media:not(.missing) > .mph-label { display: none; }
+.has-media > img, .has-media > video, .ig-av > img { opacity: 0; transition: opacity .25s ease; }
+.has-media > img.ok, .has-media > video.ok, .ig-av > img.ok { opacity: 1; }
+.mph.contain.has-media { background: #000 !important; }

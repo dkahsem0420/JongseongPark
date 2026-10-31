@@ -13,6 +13,7 @@ import { getAppModule } from './index.js';
 import { receiveKakao, kakaoUnreadTotal, kakaoRoomOpen } from './app-kakao.js';
 import { personName } from './people.js';
 import { ICONS } from './icons.js';
+import { preloadImages } from './preload.js';
 
 const phone = document.getElementById('phone');
 const screen = document.getElementById('screen');
@@ -137,11 +138,13 @@ function openApp(id, sub) {
     });
     screen.insertBefore(appEl, lock.el);
     home.el.classList.add('behind');
-    cur = { id, mod, el: appEl, sub: null, page: null };
+    cur = { id, mod, el: appEl, sub: null, page: null, scroll: new Map() };
   }
 
   const same = cur.sub && cur.sub.join('/') === sub.join('/');
   if (same && cur.page) return;
+  // 지금 화면의 스크롤 위치 저장
+  if (cur.page && cur.sub) cur.scroll.set(cur.sub.join('/'), cur.page.querySelector('.page-body')?.scrollTop || 0);
   const page = cur.mod.page(sub);
   const old = cur.page;
   if (old && navDir !== 'none') {
@@ -153,6 +156,12 @@ function openApp(id, sub) {
   cur.el.appendChild(page);
   cur.page = page;
   cur.sub = sub;
+  // 뒤로 돌아온 화면이면 보던 위치로
+  const saved = cur.scroll.get(sub.join('/'));
+  if (navDir === 'pop' && saved) {
+    const body = page.querySelector('.page-body');
+    if (body) requestAnimationFrame(() => { body.scrollTop = saved; });
+  }
   statusbar.setStyle(cur.mod.statusStyle || 'dark');
   indicator.classList.toggle('dark', (cur.mod.statusStyle || 'dark') === 'dark');
 }
@@ -172,6 +181,7 @@ function closeApp(animated) {
 
 // ── 잠금 ──
 function showLock() {
+  preloadImages(); // 암호 넣는 동안에도 미리 받기
   closeApp(false);
   if (!lock.visible || lock.el.classList.contains('unlocking')) lock.show();
   statusbar.setStyle('light');
@@ -182,6 +192,7 @@ function showLock() {
 function onUnlock(target) {
   session.unlocked = true;
   scheduleNotifications();
+  preloadImages();
   statusbar.hideTime(false);
   home.el.classList.add('wake');
   setTimeout(() => home.el.classList.remove('wake'), 600);

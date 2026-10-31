@@ -82,7 +82,7 @@ function feedTime(d) {
 
 function avatar(key, cls = '') {
   const a = acc(key);
-  const img = a.avatar ? `<img src="${esc(a.avatar)}" alt="" onerror="this.remove()">` : '';
+  const img = a.avatar ? `<img src="${esc(a.avatar)}" alt="" decoding="async" onload="this.classList.add('ok')" onerror="this.remove()">` : '';
   return `<span class="ig-av ${cls}">${SILHOUETTE}${img}</span>`;
 }
 function ringAvatar(key, cls = '') {
@@ -97,9 +97,9 @@ function photo(image, alt, seed) {
   // .mp4 / .mov / .webm 이면 소리 없이 반복 재생되는 영상으로
   const isVideo = /\.(mp4|mov|webm)$/i.test(image || '');
   const media = !image ? ''
-    : isVideo ? `<video src="${esc(image)}" autoplay muted loop playsinline preload="metadata" onerror="this.remove()"></video>`
-    : `<img src="${esc(image)}" alt="" draggable="false" onerror="this.remove()">`;
-  return `<span class="ig-photo" style="--h:${h}"><span class="ig-ph-label">${esc(alt || '사진')}</span>${media}</span>`;
+    : isVideo ? `<video src="${esc(image)}" autoplay muted loop playsinline preload="metadata" onloadeddata="this.classList.add('ok')" onerror="this.parentNode.classList.add('missing');this.remove()"></video>`
+    : `<img src="${esc(image)}" alt="" draggable="false" decoding="async" onload="this.classList.add('ok')" onerror="this.parentNode.classList.add('missing');this.remove()">`;
+  return `<span class="ig-photo${image ? ' has-media' : ''}" style="--h:${h}"><span class="ig-ph-label">${esc(alt || '사진')}</span>${media}</span>`;
 }
 
 // 댓글·캡션 속 @아이디 를 파란 링크로
