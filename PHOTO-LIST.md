@@ -82,10 +82,19 @@
 | `photo-guitar-3.jpg` | 새 기타 언박싱 |
 | `photo-cook-3.jpg` | 오늘 저녁 |
 
+## 음악 커버 (data-music.js) — 정사각형
+
+| 파일 이름 | 곡 |
+|---|---|
+| `cover-dried-flower.jpg` | Yuuri — Dried Flower |
+| `cover-save-yourself.jpg` | ONE OK ROCK — Save Yourself |
+| `cover-englishman.jpg` | Sting — Englishman in New York |
+| `cover-dont-look-back.jpg` | Oasis — Don't Look Back in Anger |
+| `cover-beloved.jpg` | GLAY — Beloved |
+
 ## 선택 사항
 
 | 위치 | 방법 |
 |---|---|
-| 음악 앨범 커버 | data-music.js 의 `cover` 에 파일 이름 (공식 앨범 커버는 저작권이 있어요) |
 | 카톡 엄마·아빠 프사 | config.js 의 `avatars` 에 `mom: 'pf-mom.jpg'` 처럼 추가 |
 | 카톡 채팅 속 사진 | data-kakao.js 메시지에 `image: '파일.jpg'` |

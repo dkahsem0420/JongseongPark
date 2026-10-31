@@ -24,7 +24,13 @@ const I = {
 };
 
 // ── 재생 상태 (앱을 닫아도 유지) ──
-const player = { cur: null, playing: false, elapsed: 0, timer: null };
+const player = { cur: null, playing: false, elapsed: 0, timer: null, queue: null };
+const queue = () => player.queue || SONGS.map((_, i) => i);
+function step(dir) {
+  const q = queue();
+  const k = q.indexOf(player.cur);
+  return q[(k + dir + q.length) % q.length];
+}
 const len = (i) => toSeconds(SONGS[i]?.length) || 240;
 const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
@@ -37,7 +43,7 @@ function cover(i, cls = '') {
 function tick() {
   if (!player.playing) return;
   player.elapsed += 1;
-  if (player.elapsed >= len(player.cur)) { player.cur = (player.cur + 1) % SONGS.length; player.elapsed = 0; refreshAll(true); return; }
+  if (player.elapsed >= len(player.cur)) { player.cur = step(1); player.elapsed = 0; refreshAll(true); return; }
   refreshAll(false);
 }
 function setPlaying(on) {
@@ -46,15 +52,15 @@ function setPlaying(on) {
   if (on) player.timer = setInterval(tick, 1000);
   refreshAll(false);
 }
-function playSong(i) {
-  player.cur = i; player.elapsed = 0;
+function playSong(i, q = null) {
+  player.queue = q; player.cur = i; player.elapsed = 0;
   setPlaying(true);
   refreshAll(true);
 }
 function skip(dir) {
   if (player.cur == null) return;
   if (dir < 0 && player.elapsed > 3) player.elapsed = 0;
-  else player.cur = (player.cur + dir + SONGS.length) % SONGS.length, player.elapsed = 0;
+  else player.cur = step(dir), player.elapsed = 0;
   refreshAll(true);
 }
 
@@ -152,8 +158,8 @@ export default function create(ctx) {
           </div>
           <p class="mu-sec">재생목록</p>
           <div class="mu-pls">
-            ${PLAYLISTS.map((pl) => `
-              <button class="mu-pl" data-song="${pl.songs[0] ?? 0}">
+            ${PLAYLISTS.map((pl, pi) => `
+              <button class="mu-pl" data-pl="${pi}">
                 <span class="mu-pl-art">${pl.songs.slice(0, 4).map((i) => cover(i, 'tile')).join('')}</span>
                 <b>${esc(t(pl.title))}</b><small>${pl.songs.length}곡</small>
               </button>`).join('')}
@@ -179,13 +185,66 @@ export default function create(ctx) {
       if (e.target.closest('[data-toggle]')) { e.stopPropagation(); setPlaying(!player.playing); return; }
       if (e.target.closest('[data-next]')) { e.stopPropagation(); skip(1); return; }
       if (e.target.closest('[data-open-now]')) { openNow(p); return; }
+      const pl = e.target.closest('[data-pl]');
+      if (pl) { ctx.go(`pl/${pl.dataset.pl}`); return; }
       const s = e.target.closest('[data-song]');
-      if (s) { const i = Number(s.dataset.song); if (player.cur !== i) playSong(i); else if (!player.playing) setPlaying(true); openNow(p); }
+      if (s) { const i = Number(s.dataset.song); if (player.cur !== i || player.queue) playSong(i, null); else if (!player.playing) setPlaying(true); openNow(p); }
     });
     const body = p.querySelector('.page-body');
     body.addEventListener('scroll', () => p.querySelector('.page-head').classList.toggle('scrolled', body.scrollTop > 38), { passive: true });
     return p;
   }
 
-  return { statusStyle: 'dark', page: library };
+  function playlist(n) {
+    const pl = PLAYLISTS[n];
+    if (!pl) return library();
+    const songs = pl.songs.filter((i) => SONGS[i]);
+    const p = el(`
+      <div class="page mu">
+        <div class="page-head plain-head mu-plhead">
+          <div class="nav">
+            <div class="nav-left"><button class="nav-back mu-tint" data-nav="back" data-back="">${GLYPH.chevronLeft}<span>보관함</span></button></div>
+            <div class="nav-title"></div>
+            <div class="nav-right"><span class="nav-btn plain mu-tint">···</span></div>
+          </div>
+        </div>
+        <div class="page-body">
+          <div class="mu-plbig">
+            <span class="mu-pl-art big">${songs.slice(0, 4).map((i) => cover(i, 'tile')).join('')}</span>
+            <h2>${esc(t(pl.title))}</h2>
+            <p>${esc(t(pl.by || '박종성'))}</p>
+            <div class="mu-plbtns"><button data-plplay>${I.play(18)} 재생</button><button data-plshuffle>⤨ 임의 재생</button></div>
+          </div>
+          <div class="mu-songs">
+            ${songs.map((i) => `
+              <button class="mu-row${player.cur === i ? ' on' : ''}" data-song="${i}">
+                ${cover(i, 'sm')}
+                <span class="mu-row-main"><b>${esc(SONGS[i].title)}</b><small>${esc(SONGS[i].artist)}</small></span>
+                <span class="mu-eq"><i></i><i></i><i></i></span>
+              </button>`).join('')}
+            <p class="mu-plcount">${songs.length}곡</p>
+          </div>
+        </div>
+        ${miniHtml()}
+      </div>`);
+    p.addEventListener('click', (e) => {
+      if (e.target.closest('.mu-now')) return;
+      if (e.target.closest('[data-toggle]')) { e.stopPropagation(); setPlaying(!player.playing); return; }
+      if (e.target.closest('[data-next]')) { e.stopPropagation(); skip(1); return; }
+      if (e.target.closest('[data-open-now]')) { openNow(p); return; }
+      if (e.target.closest('[data-plplay]')) { playSong(songs[0], songs); openNow(p); return; }
+      if (e.target.closest('[data-plshuffle]')) {
+        const q = [...songs].sort(() => Math.random() - 0.5);
+        playSong(q[0], q); openNow(p); return;
+      }
+      const s = e.target.closest('[data-song]');
+      if (s) { playSong(Number(s.dataset.song), songs); openNow(p); }
+    });
+    return p;
+  }
+
+  return {
+    statusStyle: 'dark',
+    page(sub) { return sub[0] === 'pl' ? playlist(Number(sub[1])) : library(); },
+  };
 }
