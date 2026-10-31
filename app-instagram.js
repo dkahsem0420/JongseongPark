@@ -28,6 +28,8 @@ const I = {
   compose: S('<path d="M19 13.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5.5"/><path d="M17.8 3.2l3 3L12 15l-3.8.8.8-3.8z"/>', 25),
   close: S('<path d="M5 5l14 14M19 5L5 19"/>', 28),
   chevDown: S('<path d="M6 9.5l6 6 6-6"/>', 16),
+  verified: `<svg viewBox="0 0 24 24" width="14" height="14" class="ig-verified"><path d="M12 2l2.4 1.8 3-.2.9 2.9 2.5 1.7-.9 2.8.9 2.8-2.5 1.7-.9 2.9-3-.2L12 22l-2.4-1.8-3 .2-.9-2.9-2.5-1.7.9-2.8-.9-2.8 2.5-1.7.9-2.9 3 .2z" fill="#0095F6"/><path d="M8.2 12.2l2.6 2.6 5-5.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  reelMark: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="1.9" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M3.5 8.5h17M9 3.5l2.5 5M14.5 3.5l2.5 5"/><path d="M10.5 11.5v5l4-2.5z" fill="#fff"/></svg>`,
 };
 
 const SILHOUETTE = `<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="15.5" r="7.2" fill="#fff"/><path d="M6.5 37c1.4-7.6 7-11.6 13.5-11.6S32.1 29.4 33.5 37z" fill="#fff"/></svg>`;
@@ -42,10 +44,13 @@ function acc(key) {
   return { key, ...a, username: t(a.username), name: t(a.name), bio: t(a.bio || '') };
 }
 const userKeyByName = (u) => Object.keys(IG_ACCOUNTS).find((k) => acc(k).username.toLowerCase() === String(u).toLowerCase());
+// 아이디 (공식 계정이면 파란 인증 배지)
+const uname = (key) => `${esc(acc(key).username)}${IG_ACCOUNTS[key]?.verified ? I.verified : ''}`;
 const fmtNum = (n) => Number(n).toLocaleString('ko-KR');
 const posts = () => IG_POSTS.map((p) => ({ ...p, d: parseDT(p.at) })).sort((a, b) => b.d - a.d);
 const postById = (id) => posts().find((p) => p.id === id);
 const postsBy = (key) => posts().filter((p) => p.by === key);
+const commentCount = (p) => (p.comments || []).reduce((n, c) => n + 1 + (c.replies || []).length, 0);
 const storyOf = (key) => IG_STORIES.find((s) => s.by === key && s.items?.length);
 // 스토리 순서: 내 스토리 → 안 본 사람 → 본 사람
 function storyOrder() {
@@ -100,6 +105,43 @@ function richText(s) {
   });
 }
 
+function msgPreview(m) {
+  if (m.share) return m.share.kind === 'reel' ? '릴스를 보냈습니다' : '게시물을 보냈습니다';
+  return t(m.text);
+}
+
+// DM 속 공유 카드 (릴스·게시물)
+function shareCard(sh) {
+  const a = acc(sh.by);
+  if (sh.kind === 'reel') {
+    return `
+      <span class="ig-share reel">
+        <span class="ig-share-media">${photo(sh.image, sh.alt, sh.image || sh.alt)}<span class="ig-share-mark">${I.reelMark}</span></span>
+        <span class="ig-share-over">${avatar(sh.by, 'xs')}<b>${uname(sh.by)}</b></span>
+      </span>`;
+  }
+  return `
+    <span class="ig-share post">
+      <span class="ig-share-head">${avatar(sh.by, 'xs')}<b>${uname(sh.by)}</b></span>
+      <span class="ig-share-media">${photo(sh.image, sh.alt, sh.image || sh.alt)}</span>
+      ${sh.caption ? `<span class="ig-share-cap"><b>${esc(a.username)}</b> ${T(sh.caption)}</span>` : ''}
+    </span>`;
+}
+
+function commentHtml(c, isReply = false) {
+  const mention = c.to ? `<a class="ig-mention" data-user="${c.to}">@${esc(acc(c.to).username)}</a> ` : '';
+  return `
+    <div class="ig-c${isReply ? ' reply' : ''}">
+      <span data-user="${c.by}">${avatar(c.by, isReply ? 'xs' : 'sm')}</span>
+      <div class="ig-c-main">
+        <p><b data-user="${c.by}">${uname(c.by)}</b> <span class="ig-c-time">${esc(ago(parseDT(c.at)))}</span></p>
+        <p class="ig-c-text">${mention}${richText(c.text)}</p>
+        <span class="ig-c-reply">답글 달기</span>
+      </div>
+      <span class="ig-c-heart">${I.heartSm}</span>
+    </div>`;
+}
+
 function tabbar(active) {
   return `
     <nav class="ig-tabs">
@@ -117,7 +159,7 @@ function postCard(p, { full = false } = {}) {
   return `
     <article class="ig-post" data-post="${p.id}">
       <header class="ig-post-head">
-        <span class="ig-who">${ringAvatar(p.by, 'sm')}<b data-user="${p.by}">${esc(a.username)}</b></span>
+        <span class="ig-who">${ringAvatar(p.by, 'sm')}<b data-user="${p.by}">${uname(p.by)}</b></span>
         <span class="ig-icon">${I.more}</span>
       </header>
       <div class="ig-media" data-media="${p.id}">${photo(p.image, p.alt, p.id)}<span class="ig-bigheart">${I.heartFill}</span></div>
@@ -129,7 +171,7 @@ function postCard(p, { full = false } = {}) {
       </div>
       <p class="ig-likes">좋아요 <b>${fmtNum(L.likes)}</b>개</p>
       ${p.caption ? `<p class="ig-cap"><b data-user="${p.by}">${esc(a.username)}</b> ${richText(p.caption)}</p>` : ''}
-      ${!full && p.comments?.length ? `<button class="ig-allc" data-open="${p.id}">댓글 ${p.comments.length}개 모두 보기</button>` : ''}
+      ${!full && commentCount(p) ? `<button class="ig-allc" data-open="${p.id}">댓글 ${commentCount(p)}개 모두 보기</button>` : ''}
       <p class="ig-time">${esc(feedTime(p.d))}</p>
     </article>`;
 }
@@ -139,6 +181,8 @@ export default function create(ctx) {
   function wire(page, here = '') {
     let lastTap = { id: null, t: 0 };
     page.addEventListener('click', (e) => {
+      const rt = e.target.closest('[data-rtoggle]');
+      if (rt) { rt.parentNode.classList.toggle('closed'); return; }
       const story = e.target.closest('[data-story]');
       if (story) { openStory(page, story.dataset.story); return; }
       const user = e.target.closest('[data-user]');
@@ -186,6 +230,7 @@ export default function create(ctx) {
   function feed() {
     const ordered = storyOrder();
     const list = posts().filter((p) => p.by === 'jay' || IG_FOLLOWING.includes(p.by));
+    list.sort((a, b) => (b.feedTop ? 1 : 0) - (a.feedTop ? 1 : 0)); // feedTop 게시물을 맨 위로
     return wire(el(`
       <div class="page ig">
         <div class="ig-top">
@@ -219,19 +264,13 @@ export default function create(ctx) {
         <div class="page-body ig-body">
           ${postCard(p, { full: true })}
           <div class="ig-comments">
-            ${(p.comments || []).map((c) => {
-              const ca = acc(c.by);
-              return `
-              <div class="ig-c">
-                <span data-user="${c.by}">${avatar(c.by, 'sm')}</span>
-                <div class="ig-c-main">
-                  <p><b data-user="${c.by}">${esc(ca.username)}</b> <span class="ig-c-time">${esc(ago(parseDT(c.at)))}</span></p>
-                  <p class="ig-c-text">${richText(c.text)}</p>
-                  <span class="ig-c-reply">답글 달기</span>
-                </div>
-                <span class="ig-c-heart">${I.heartSm}</span>
-              </div>`;
-            }).join('') || '<p class="ig-empty">아직 댓글이 없습니다.</p>'}
+            ${(p.comments || []).map((c) => `
+              ${commentHtml(c)}
+              ${c.replies?.length ? `
+                <div class="ig-replies">
+                  <button class="ig-rtoggle" data-rtoggle><span></span><em>답글 숨기기</em><em>답글 ${c.replies.length}개 보기</em></button>
+                  <div class="ig-rlist">${c.replies.map((r) => commentHtml(r, true)).join('')}</div>
+                </div>` : ''}`).join('') || '<p class="ig-empty">아직 댓글이 없습니다.</p>'}
           </div>
         </div>
         <div class="ig-cbar">${avatar('jay', 'sm')}<span>${esc(acc('jay').username)}(으)로 댓글 달기...</span></div>
@@ -245,18 +284,19 @@ export default function create(ctx) {
     const mine = key === 'jay';
     const list = postsBy(key);
     const dm = IG_DMS.find((x) => x.with === key);
+    const following = IG_FOLLOWING.includes(key);
     return wire(el(`
       <div class="page ig">
         <div class="ig-bar${mine ? ' mine' : ''}">
           ${mine ? '<span></span>' : `<button class="ig-icon" data-nav="back" data-back="*" aria-label="뒤로">${I.back}</button>`}
-          <b>${esc(a.username)}${mine ? ` <span class="ig-chev">${I.chevDown}</span>` : ''}</b>
+          <b>${uname(key)}${mine ? ` <span class="ig-chev">${I.chevDown}</span>` : ''}</b>
           <span class="ig-bar-icons">${mine ? `${I.plus}${I.menu}` : I.more}</span>
         </div>
         <div class="page-body ig-body">
           <div class="ig-prof">
             ${ringAvatar(key, 'xl')}
             <div class="ig-stats">
-              <span><b>${list.length}</b><small>게시물</small></span>
+              <span><b>${fmtNum(a.postsCount ?? list.length)}</b><small>게시물</small></span>
               <span><b>${fmtNum(a.followers || 0)}</b><small>팔로워</small></span>
               <span><b>${fmtNum(a.following || 0)}</b><small>팔로잉</small></span>
             </div>
@@ -266,12 +306,14 @@ export default function create(ctx) {
           <div class="ig-btns">
             ${mine
               ? '<span>프로필 편집</span><span>프로필 공유</span>'
-              : `<span>팔로잉 ${I.chevDown}</span><button data-go="${dm ? `dm/${dm.id}` : 'dm'}">메시지</button>`}
+              : `${following ? `<span>팔로잉 ${I.chevDown}</span>` : '<span class="ig-follow">팔로우</span>'}<button data-go="${dm ? `dm/${dm.id}` : 'dm'}">메시지</button>`}
           </div>
           <div class="ig-gridtabs"><span class="on">${I.grid}</span><span>${I.reels}</span><span>${I.tagged}</span></div>
           ${list.length
             ? `<div class="ig-grid">${list.map((p) => `<button class="ig-tile" data-open="${p.id}">${photo(p.image, p.alt, p.id)}</button>`).join('')}</div>`
-            : '<p class="ig-empty big">게시물 없음</p>'}
+            : a.postsCount
+              ? `<div class="ig-grid">${Array.from({ length: 12 }, (_, i) => `<span class="ig-tile">${photo('', ' ', `${key}-${i}`)}</span>`).join('')}</div>`
+              : '<p class="ig-empty big">게시물 없음</p>'}
         </div>
         ${tabbar(mine ? 'me' : '')}
       </div>`), `u/${key}`);
@@ -292,7 +334,8 @@ export default function create(ctx) {
 
   // ── DM 목록 ──
   function dmList() {
-    const threads = IG_DMS.map((th) => ({ ...th, last: th.messages[th.messages.length - 1] }));
+    const threads = IG_DMS.map((th) => ({ ...th, last: th.messages[th.messages.length - 1] }))
+      .sort((a, b) => parseDT(b.last.at) - parseDT(a.last.at));
     return wire(el(`
       <div class="page ig">
         <div class="ig-bar">
@@ -309,7 +352,7 @@ export default function create(ctx) {
             return `
             <button class="ig-dm-row" data-go="dm/${th.id}">
               ${avatar(th.with, 'md')}
-              <span class="ig-dm-main"><b>${esc(a.name)}</b><span>${esc(prefix + t(th.last.text))}</span></span>
+              <span class="ig-dm-main"><b>${esc(a.name)}${IG_ACCOUNTS[th.with]?.verified ? I.verified : ''}</b><span>${esc(prefix + msgPreview(th.last))}</span></span>
               <span class="ig-dm-ago">${esc(ago(parseDT(th.last.at)))}</span>
             </button>`;
           }).join('')}
@@ -335,18 +378,19 @@ export default function create(ctx) {
       const st = !prev || m.d - prev.d > 3600000 ? `<p class="ig-stamp">${esc(stamp(m.d))}</p>` : '';
       const lastOfGroup = !next || next.from !== m.from || next.d - m.d > 3600000;
       const seen = th.seen && i === lastMe ? '<p class="ig-seen">읽음</p>' : '';
-      if (m.from === 'me') return `${st}<div class="ig-msg me"><span class="ig-bub">${T(m.text)}</span></div>${seen}`;
-      return `${st}<div class="ig-msg them"><span class="ig-msg-av">${lastOfGroup ? avatar(th.with, 'xs') : ''}</span><span class="ig-bub">${T(m.text)}</span></div>`;
+      const content = m.share ? shareCard(m.share) : `<span class="ig-bub">${T(m.text).replace(/\n/g, '<br>')}</span>`;
+      if (m.from === 'me') return `${st}<div class="ig-msg me">${content}</div>${seen}`;
+      return `${st}<div class="ig-msg them"><span class="ig-msg-av">${lastOfGroup ? avatar(th.with, 'xs') : ''}</span>${content}</div>`;
     }).join('');
     const p = wire(el(`
       <div class="page ig">
         <div class="ig-bar dm">
           <button class="ig-icon" data-nav="back" data-back="*" aria-label="뒤로">${I.back}</button>
-          <span class="ig-dm-who" data-user="${th.with}">${avatar(th.with, 'sm')}<span><b>${esc(a.name)}</b><small>${esc(a.username)}</small></span></span>
+          <span class="ig-dm-who" data-user="${th.with}">${avatar(th.with, 'sm')}<span><b>${esc(a.name)}${IG_ACCOUNTS[th.with]?.verified ? I.verified : ''}</b><small>${esc(a.username)}</small></span></span>
           <span></span>
         </div>
         <div class="page-body ig-body ig-dm-body">
-          <div class="ig-dm-intro" data-user="${th.with}">${avatar(th.with, 'xl')}<b>${esc(a.name)}</b><small>${esc(a.username)} · Instagram</small><span>프로필 보기</span></div>
+          <div class="ig-dm-intro" data-user="${th.with}">${avatar(th.with, 'xl')}<b>${esc(a.name)}${IG_ACCOUNTS[th.with]?.verified ? I.verified : ''}</b><small>${esc(a.username)} · Instagram</small><span>프로필 보기</span></div>
           ${body}
         </div>
         <div class="ig-dm-input"><span>메시지 입력...</span></div>
