@@ -11,10 +11,17 @@
 
 import placeholder from './placeholder.js';
 import settings from './settings.js';
+import phone from './app-phone.js';
+import kakao from './app-kakao.js';
+import messages from './app-messages.js';
+import notes from './app-notes.js';
 
 const MODULES = {
   settings,
-  // 2단계: phone, kakao, messages, notes
+  phone,
+  kakao,
+  messages,
+  notes,
   // 3단계: instagram
   // 4단계: photos, calendar, safari, music, clock
 };

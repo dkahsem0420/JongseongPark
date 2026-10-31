@@ -45,6 +45,11 @@ python3 -m http.server 8000
 | 잠금화면 알림 문구 | `config.js` → `lockNotification` |
 | 디데이 위젯 제목·배경 사진 | `config.js` → `ddayWidget` |
 | 앱 배치, 빨간 배지 숫자 | `apps.js` |
+| 카카오톡 채팅방·대화 | `data-kakao.js` |
+| 문자 대화 | `data-messages.js` |
+| 최근 통화 기록 | `data-calls.js` |
+| 메모 | `data-notes.js` |
+| 저장명(♡, 엄마/아빠), 프로필 사진 | `config.js` → `contacts`, `avatars` |
 | 앱 아이콘을 이미지로 바꾸기 | 이미지를 올리고 `apps.js`에서 `image: '파일명.png'` |
 
 배경 사진은 세로 사진(약 1170×2532)이 가장 잘 맞습니다. 파일 이름과 확장자(`.jpg`)가 정확히 같아야 합니다.

@@ -111,7 +111,7 @@ function openApp(id, sub) {
     appEl.addEventListener('click', (e) => {
       const b = e.target.closest('[data-nav]');
       if (!b) return;
-      if (b.dataset.nav === 'back') ctx.back(cur.sub.slice(0, -1).join('/'));
+      if (b.dataset.nav === 'back') ctx.back(b.dataset.back ?? cur.sub.slice(0, -1).join('/'));
       if (b.dataset.nav === 'home') nav('#/home');
     });
     screen.insertBefore(appEl, lock.el);

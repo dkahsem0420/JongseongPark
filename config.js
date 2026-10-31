@@ -60,6 +60,10 @@ export const CONFIG = {
     dad: '아빠',
   },
 
+  // 프로필 사진 (사진 파일을 올리고 이름을 적으면 카톡·전화·문자에 적용)
+  // 예: gf: 'gf.jpg', '박성훈': 'seonghoon.jpg', '심재윤': 'jaeyoon.jpg', mom: 'mom.jpg'
+  avatars: {},
+
   // 잠긴 메모 「아이디 & 비밀번호」 — 어떤 비밀번호를 넣어도 절대 열리지 않음.
   // 메모 내용 자체를 코드에 넣지 않으므로, 소스를 들여다봐도 볼 수 있는 게 없습니다.
   notes: {
@@ -72,7 +76,7 @@ export const CONFIG = {
     title: '{name}',
     body: '선배 어디예요?',
     time: '지금',
-    target: '#/app/kakao', // 알림을 누르면 열릴 화면
+    target: '#/app/kakao/chat/gf', // 알림을 누르면 열릴 화면 (여자친구 채팅방)
   },
 
   // 홈화면 디데이 위젯
