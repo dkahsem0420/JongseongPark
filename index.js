@@ -15,6 +15,7 @@ import phone from './app-phone.js';
 import kakao from './app-kakao.js';
 import messages from './app-messages.js';
 import notes from './app-notes.js';
+import instagram from './app-instagram.js';
 
 const MODULES = {
   settings,
@@ -22,6 +23,7 @@ const MODULES = {
   kakao,
   messages,
   notes,
+  instagram,
   // 3단계: instagram
   // 4단계: photos, calendar, safari, music, clock
 };

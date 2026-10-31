@@ -51,6 +51,8 @@ const stack = [];
 let replacing = false;
 let pending = null; // 잠금 해제 후 갈 주소
 let origin = null;  // 앱이 열릴 때 확대되는 시작점
+let navDir = 'push'; // 마지막 이동 방향: push(들어감) / pop(뒤로) / none
+let forceDir = null;
 
 function nav(hash, { replace = false } = {}) {
   if (location.hash === hash) { route(); return; }
@@ -61,15 +63,25 @@ function nav(hash, { replace = false } = {}) {
 
 function trackStack() {
   const h = location.hash || '#/';
-  if (replacing) { stack[Math.max(0, stack.length - 1)] = h; replacing = false; }
-  else if (stack.length > 1 && stack[stack.length - 2] === h) stack.pop();
-  else if (stack[stack.length - 1] !== h) stack.push(h);
+  if (replacing) { stack[Math.max(0, stack.length - 1)] = h; replacing = false; navDir = forceDir || 'none'; }
+  else if (stack.length > 1 && stack[stack.length - 2] === h) { stack.pop(); navDir = 'pop'; }
+  else if (stack[stack.length - 1] !== h) { stack.push(h); navDir = 'push'; }
+  forceDir = null;
 }
 
+const appHash = (appId, sub) => `#/app/${appId}${sub ? '/' + sub : ''}`;
+
 function goBack(appId, parent) {
-  const target = `#/app/${appId}${parent ? '/' + parent : ''}`;
+  const target = appHash(appId, parent);
   if (stack.length > 1 && stack[stack.length - 2] === target) history.back();
-  else nav(target, { replace: true });
+  else { forceDir = 'pop'; nav(target, { replace: true }); }
+}
+
+// 앱 안에서 '직전 화면'으로 (어디서 왔는지 모를 때)
+function goBackAny(appId) {
+  const prev = stack[stack.length - 2];
+  if (stack.length > 1 && prev && prev.startsWith(`#/app/${appId}`)) history.back();
+  else { forceDir = 'pop'; nav(appHash(appId, ''), { replace: true }); }
 }
 
 // ── 앱 열고 닫기 ──
@@ -78,8 +90,10 @@ let cur = null; // { id, mod, el, sub, page }
 function makeCtx(def) {
   return {
     app: def, t, T,
-    go: (sub) => nav(`#/app/${def.id}/${sub}`),
+    go: (sub, opts) => nav(appHash(def.id, sub), opts),
     back: (parent = '') => goBack(def.id, parent),
+    backAny: () => goBackAny(def.id),
+    setStatus: (style) => { statusbar.setStyle(style); indicator.classList.toggle('dark', style === 'dark'); },
     home: () => nav('#/home'),
     lock: () => nav('#/lock'),
     restart: () => { session.unlocked = false; nav('#/setup', { replace: true }); },
@@ -111,7 +125,10 @@ function openApp(id, sub) {
     appEl.addEventListener('click', (e) => {
       const b = e.target.closest('[data-nav]');
       if (!b) return;
-      if (b.dataset.nav === 'back') ctx.back(b.dataset.back ?? cur.sub.slice(0, -1).join('/'));
+      if (b.dataset.nav === 'back') {
+        if (b.dataset.back === '*') ctx.backAny();
+        else ctx.back(b.dataset.back ?? cur.sub.slice(0, -1).join('/'));
+      }
       if (b.dataset.nav === 'home') nav('#/home');
     });
     screen.insertBefore(appEl, lock.el);
@@ -119,13 +136,12 @@ function openApp(id, sub) {
     cur = { id, mod, el: appEl, sub: null, page: null };
   }
 
-  const prevDepth = cur.sub ? cur.sub.length : -1;
   const same = cur.sub && cur.sub.join('/') === sub.join('/');
   if (same && cur.page) return;
   const page = cur.mod.page(sub);
   const old = cur.page;
-  if (old && prevDepth >= 0 && sub.length !== prevDepth) {
-    const push = sub.length > prevDepth;
+  if (old && navDir !== 'none') {
+    const push = navDir === 'push';
     page.classList.add(push ? 'push-in' : 'pop-in');
     old.classList.add(push ? 'push-out' : 'pop-out');
     setTimeout(() => { old.remove(); page.classList.remove('push-in', 'pop-in'); }, 360);

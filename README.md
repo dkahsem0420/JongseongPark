@@ -49,6 +49,7 @@ python3 -m http.server 8000
 | 문자 대화 | `data-messages.js` |
 | 최근 통화 기록 | `data-calls.js` |
 | 메모 | `data-notes.js` |
+| 인스타그램 계정·게시물·댓글·스토리·DM | `data-instagram.js` |
 | 저장명(♡, 엄마/아빠), 프로필 사진 | `config.js` → `contacts`, `avatars` |
 | 앱 아이콘을 이미지로 바꾸기 | 이미지를 올리고 `apps.js`에서 `image: '파일명.png'` |
 
