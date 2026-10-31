@@ -64,7 +64,6 @@ export const CONFIG = {
   // 예: gf: 'gf.jpg', '박성훈': 'seonghoon.jpg', '심재윤': 'jaeyoon.jpg', mom: 'mom.jpg'
   // 인스타 프사와 같은 파일을 써서, 한 번 올리면 카톡·전화·문자에도 같이 적용돼요
   avatars: {
-    me: 'pf-jay.jpg',
     gf: 'pf-gf.jpg',
     '박성훈': 'pf-seonghoon.jpg',
     '심재윤': 'pf-jaeyoon.jpg',
