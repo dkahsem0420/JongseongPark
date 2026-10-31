@@ -91,6 +91,12 @@
 | `cover-englishman.jpg` | Sting — Englishman in New York |
 | `cover-dont-look-back.jpg` | Oasis — Don't Look Back in Anger |
 | `cover-beloved.jpg` | GLAY — Beloved |
+| `cover-gf-1.jpg` | 김광석 — 사랑했지만 (여주 플레이리스트) |
+| `cover-gf-2.jpg` | 이문세 — 소녀 (여주 플레이리스트) |
+| `cover-gf-3.jpg` | 유재하 — 사랑하기 때문에 (여주 플레이리스트) |
+| `cover-gf-4.jpg` | 검정치마 — Everything (여주 플레이리스트) |
+| `cover-gf-5.jpg` | 잔나비 — 주저하는 연인들을 위해 (여주 플레이리스트) |
+| `cover-gf-6.jpg` | 혁오 — 위잉위잉 (여주 플레이리스트) |
 
 ## 선택 사항
 

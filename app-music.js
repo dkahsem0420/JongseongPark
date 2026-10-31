@@ -25,7 +25,8 @@ const I = {
 
 // ── 재생 상태 (앱을 닫아도 유지) ──
 const player = { cur: null, playing: false, elapsed: 0, timer: null, queue: null };
-const queue = () => player.queue || SONGS.map((_, i) => i);
+const libraryIdx = () => SONGS.map((_, i) => i).filter((i) => SONGS[i].library !== false);
+const queue = () => player.queue || libraryIdx();
 function step(dir) {
   const q = queue();
   const k = q.indexOf(player.cur);
@@ -166,7 +167,7 @@ export default function create(ctx) {
           </div>
           <p class="mu-sec">노래</p>
           <div class="mu-songs">
-            ${SONGS.map((s, i) => `
+            ${libraryIdx().map((i) => SONGS[i]).map((s) => [s, SONGS.indexOf(s)]).map(([s, i]) => `
               <button class="mu-row${player.cur === i ? ' on' : ''}" data-song="${i}">
                 ${cover(i, 'sm')}
                 <span class="mu-row-main"><b>${esc(s.title)}</b><small>${esc(s.artist)}</small></span>
