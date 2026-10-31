@@ -10,6 +10,9 @@ import { createSetup } from './setup.js';
 import { createLock } from './lock.js';
 import { createHome } from './home.js';
 import { getAppModule } from './index.js';
+import { receiveKakao, kakaoUnreadTotal, kakaoRoomOpen } from './app-kakao.js';
+import { personName } from './people.js';
+import { ICONS } from './icons.js';
 
 const phone = document.getElementById('phone');
 const screen = document.getElementById('screen');
@@ -39,8 +42,9 @@ const home = createHome({ onOpen: openFromIcon });
 const lock = createLock({ onUnlock, onPasscode: (on) => statusbar.hideTime(!on) });
 const setup = createSetup({ onDone: onSetupDone });
 const indicator = el(`<div class="home-ind" role="button" aria-label="홈으로"><span></span></div>`);
+const banner = el(`<div class="banner" role="button" hidden></div>`);
 
-screen.append(home.el, lock.el, setup.el, statusbar.el, indicator);
+screen.append(home.el, lock.el, setup.el, statusbar.el, banner, indicator);
 lock.hide();
 setup.el.hidden = true;
 
@@ -177,6 +181,7 @@ function showLock() {
 
 function onUnlock(target) {
   session.unlocked = true;
+  scheduleNotifications();
   statusbar.hideTime(false);
   home.el.classList.add('wake');
   setTimeout(() => home.el.classList.remove('wake'), 600);
@@ -222,9 +227,57 @@ function route() {
   if (parts[0] === 'app' && appById(parts[1])) openApp(parts[1], parts.slice(2));
   else if (parts[0] !== 'home') nav('#/home', { replace: true });
   else closeApp(true);
+  home.setBadge('kakao', kakaoUnreadTotal());
 }
 
 window.addEventListener('hashchange', route);
+
+// ── 둘러보는 도중 내려오는 카톡 알림 (config.js 의 notifications) ──
+let notifScheduled = false;
+let bannerTimer = null;
+function scheduleNotifications() {
+  if (notifScheduled) return;
+  notifScheduled = true;
+  for (const n of CONFIG.notifications || []) {
+    setTimeout(() => fireNotification(n), (n.after || 60) * 1000);
+  }
+}
+function fireNotification(n) {
+  // 잠겨 있거나 이름 입력 중이면 풀릴 때까지 기다림
+  if (!session.unlocked || !getVisitor() || lock.visible) { setTimeout(() => fireNotification(n), 2000); return; }
+  const viewing = kakaoRoomOpen(n.chat);
+  receiveKakao(n.chat, n.from, n.text, { read: viewing });
+  home.setBadge('kakao', kakaoUnreadTotal());
+  navigator.vibrate?.(60);
+  if (viewing) return; // 이미 그 채팅방을 보고 있으면 배너 없이 메시지만
+  banner.innerHTML = `
+    <span class="n-icon">${ICONS.kakao()}</span>
+    <span class="n-main">
+      <span class="n-top"><b>${T(personName(n.from))}</b><span class="n-time">지금</span></span>
+      <span class="n-body">${T(n.text)}</span>
+    </span>`;
+  banner.dataset.target = `#/app/kakao/chat/${n.chat}`;
+  banner.hidden = false;
+  requestAnimationFrame(() => requestAnimationFrame(() => banner.classList.add('in')));
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(hideBanner, 5500);
+}
+function hideBanner() {
+  banner.classList.remove('in');
+  setTimeout(() => { if (!banner.classList.contains('in')) banner.hidden = true; }, 400);
+}
+banner.addEventListener('click', () => {
+  const to = banner.dataset.target;
+  hideBanner();
+  if (to) nav(to);
+});
+// 위로 밀면 닫기
+let bannerY = null;
+banner.addEventListener('pointerdown', (e) => { bannerY = e.clientY; });
+banner.addEventListener('pointermove', (e) => {
+  if (bannerY != null && bannerY - e.clientY > 20) { bannerY = null; clearTimeout(bannerTimer); hideBanner(); }
+});
+banner.addEventListener('pointerup', () => { bannerY = null; });
 
 // ── 홈 인디케이터 (하단 막대): 탭하거나 위로 쓸면 홈으로 ──
 indicator.addEventListener('click', () => {

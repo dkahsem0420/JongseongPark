@@ -203,3 +203,15 @@
   display: flex; justify-content: space-between; padding: 0 calc(50% - 1.5 * min(78px, 20cqw) - 7cqw + 12px);
 }
 .pass-text { font-size: 17px; color: #fff; padding: 6px 4px; }
+
+/* ── 둘러보는 도중 내려오는 알림 배너 ── */
+.banner {
+  position: absolute; left: 8px; right: 8px; top: calc(var(--safe-top) + 8px); z-index: 96;
+  display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 22px;
+  background: rgba(245, 245, 247, .82); color: #000; cursor: pointer;
+  -webkit-backdrop-filter: blur(30px) saturate(1.8); backdrop-filter: blur(30px) saturate(1.8);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .18);
+  transform: translateY(-140%); transition: transform .45s cubic-bezier(.2, .9, .3, 1.1);
+  touch-action: none;
+}
+.banner.in { transform: none; }

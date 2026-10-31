@@ -84,6 +84,13 @@ export const CONFIG = {
     target: '#/app/kakao/chat/gf', // 알림을 누르면 열릴 화면 (여자친구 채팅방)
   },
 
+  // 둘러보는 도중 위에서 내려오는 카톡 알림 (잠금 해제 후 after 초 뒤, 방문마다 한 번)
+  //  chat : data-kakao.js 의 채팅방 id / from : 보낸 사람 / text : 내용
+  //  메시지는 실제 채팅방에도 추가되고, 누르면 그 채팅방으로 이동
+  notifications: [
+    { after: 60, chat: 'gf', from: 'gf', text: '선배 왜 답장 안 해요ㅠ' },
+  ],
+
   // 홈화면 디데이 위젯
   ddayWidget: {
     title: '{name이랑/랑}',

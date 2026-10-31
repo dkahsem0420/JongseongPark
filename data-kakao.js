@@ -92,6 +92,21 @@ export const KAKAO_CHATS = [
     ],
   },
 
+  // ── 미팅 권유 (경영 21 김병식) ──
+  {
+    id: 'byungsik',
+    with: ['경영 21 김병식'],
+    messages: [
+      { date: '2026-10-29' },
+      { from: '경영 21 김병식', time: '22:14', text: '종성아 미팅 안 나갈래?' },
+      { from: '경영 21 김병식', time: '22:14', text: '상대쪽 이미 정해졌어' },
+      { from: '경영 21 김병식', time: '22:14', text: '항공과애들' },
+      { from: '경영 21 김병식', time: '22:15', text: '존나 예쁘대' },
+      { from: 'me', time: '22:31', text: '나 여자친구 있어' },
+      { from: 'me', time: '22:31', text: '철 좀 들어라ㅋㅋ' },
+    ],
+  },
+
   // ── C. 조별과제 ──
   {
     id: 'team',

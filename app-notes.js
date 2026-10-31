@@ -21,8 +21,11 @@ const ampmLong = (d) => { const h = d.getHours(); return `${h < 12 ? '오전' : 
 function firstLine(n) {
   if (n.locked) return '잠김';
   const line = (n.body || '').split('\n').find((l) => l.trim()) || '추가 텍스트 없음';
-  return t(line.replace(/^-\s*(\[[ x]\]\s*)?/, ''));
+  return t(line.replace(/^-\s*(\[[ x]\]\s*)?/, '').replace(/~~/g, ''));
 }
+
+// ~~문장~~ → 취소선
+const strike = (html) => html.replace(/~~(.+?)~~/g, '<s>$1</s>');
 
 function bodyHtml(body) {
   return (body || '').split('\n').map((raw) => {
@@ -32,9 +35,9 @@ function bodyHtml(body) {
       const done = m[1].toLowerCase() === 'x';
       return `<div class="nt-check${done ? ' done' : ''}"><span>${done ? I.check : I.circle}</span><p>${T(m[2])}</p></div>`;
     }
-    if ((m = line.match(/^-\s+(.*)$/))) return `<div class="nt-dash"><span>-</span><p>${T(m[1])}</p></div>`;
+    if ((m = line.match(/^-\s+(.*)$/))) return `<div class="nt-dash"><span>-</span><p>${strike(T(m[1]))}</p></div>`;
     if (!line.trim()) return '<div class="nt-gap"></div>';
-    return `<p class="nt-p">${T(line)}</p>`;
+    return `<p class="nt-p">${strike(T(line))}</p>`;
   }).join('');
 }
 

@@ -72,7 +72,20 @@ function avatarBox(chat) {
 
 const textHtml = (m) => (m.raw ? esc(m.text) : T(m.text)).replace(/\n/g, '<br>');
 
-const opened = new Set(); // 이번 방문에서 열어 본 채팅방
+// 안 읽은 메시지 수 (채팅방을 열면 0, 새 메시지가 오면 +1)
+const unread = new Map(KAKAO_CHATS.map((c) => [c.id, c.unread || 0]));
+export const kakaoUnreadTotal = () => [...unread.values()].reduce((a, b) => a + b, 0);
+
+// 밖에서(알림 등) 새 메시지 넣기 → 열려 있는 화면도 바로 갱신
+export function receiveKakao(chatId, from, text, { read = false } = {}) {
+  const list = typed.get(chatId) || [];
+  typed.set(chatId, list);
+  list.push({ from, text, d: now(), raw: false });
+  if (!read) unread.set(chatId, (unread.get(chatId) || 0) + 1);
+  window.dispatchEvent(new CustomEvent('kakao:update', { detail: chatId }));
+}
+const isOpenRoom = (chatId) => location.hash === `#/app/kakao/chat/${chatId}`;
+export const kakaoRoomOpen = isOpenRoom;
 
 function messagesHtml(chat) {
   const items = expand(chat);
@@ -114,7 +127,6 @@ function messagesHtml(chat) {
 
 export default function create(ctx) {
   function list() {
-    const chats = [...KAKAO_CHATS].sort((a, b) => (lastMsg(b)?.d || 0) - (lastMsg(a)?.d || 0));
     const p = el(`
       <div class="page kk">
         <div class="kk-head">
@@ -122,21 +134,7 @@ export default function create(ctx) {
           <span class="kk-head-icons">${I.search}${I.newchat}${I.gear}</span>
         </div>
         <div class="page-body kk-list">
-          ${chats.map((c) => {
-            const m = lastMsg(c);
-            return `
-            <button class="kk-row" data-chat="${esc(c.id)}">
-              ${avatarBox(c)}
-              <span class="kk-mid">
-                <span class="kk-name"><b>${esc(chatTitle(c))}</b>${isGroup(c) ? `<em>${c.with.length + 1}</em>` : ''}</span>
-                <span class="kk-prev">${esc(preview(m))}</span>
-              </span>
-              <span class="kk-side">
-                <span class="kk-time">${m ? esc(kakaoListLabel(m.d)) : ''}</span>
-                ${c.unread && !opened.has(c.id) ? `<span class="kk-badge">${c.unread}</span>` : ''}
-              </span>
-            </button>`;
-          }).join('')}
+          ${rowsHtml()}
         </div>
         <nav class="kk-tabs">
           <span>${I.tabFriends}</span><span class="on">${I.tabChat}</span><span>${I.tabOpen}</span><span>${I.tabShop}</span><span>${I.tabMore}</span>
@@ -146,13 +144,38 @@ export default function create(ctx) {
       const r = e.target.closest('.kk-row');
       if (r) ctx.go(`chat/${r.dataset.chat}`);
     });
+    const onUpdate = () => {
+      if (!p.isConnected) { window.removeEventListener('kakao:update', onUpdate); return; }
+      p.querySelector('.kk-list').innerHTML = rowsHtml();
+    };
+    window.addEventListener('kakao:update', onUpdate);
     return p;
+  }
+
+  function rowsHtml() {
+    const chats = [...KAKAO_CHATS].sort((a, b) => (lastMsg(b)?.d || 0) - (lastMsg(a)?.d || 0));
+    return chats.map((c) => {
+            const m = lastMsg(c);
+            const n = unread.get(c.id) || 0;
+            return `
+            <button class="kk-row" data-chat="${esc(c.id)}">
+              ${avatarBox(c)}
+              <span class="kk-mid">
+                <span class="kk-name"><b>${esc(chatTitle(c))}</b>${isGroup(c) ? `<em>${c.with.length + 1}</em>` : ''}</span>
+                <span class="kk-prev">${esc(preview(m))}</span>
+              </span>
+              <span class="kk-side">
+                <span class="kk-time">${m ? esc(kakaoListLabel(m.d)) : ''}</span>
+                ${n ? `<span class="kk-badge">${n}</span>` : ''}
+              </span>
+            </button>`;
+          }).join('');
   }
 
   function room(id) {
     const chat = KAKAO_CHATS.find((c) => c.id === id);
     if (!chat) return list();
-    opened.add(chat.id);
+    unread.set(chat.id, 0);
 
     const p = el(`
       <div class="page kk-room">
@@ -178,6 +201,13 @@ export default function create(ctx) {
       requestAnimationFrame(() => { scroller.scrollTop = scroller.scrollHeight; });
     };
     draw();
+
+    // 이 방에 새 메시지가 오면 바로 표시 (보고 있으니 읽음 처리)
+    const onUpdate = (e) => {
+      if (!p.isConnected) { window.removeEventListener('kakao:update', onUpdate); return; }
+      if (e.detail === chat.id) { unread.set(chat.id, 0); draw(); }
+    };
+    window.addEventListener('kakao:update', onUpdate);
 
     input.addEventListener('input', () => form.classList.toggle('has-text', !!input.value.trim()));
 

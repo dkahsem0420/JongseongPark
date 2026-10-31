@@ -54,5 +54,15 @@ export function createHome({ onOpen }) {
     if (b) onOpen(b.dataset.open, b.querySelector('.icon, .widget'));
   });
 
-  return { el: root, refresh: render };
+  // 앱 아이콘의 빨간 숫자 바꾸기 (0이면 숨김)
+  function setBadge(id, n) {
+    root.querySelectorAll(`[data-open="${id}"] .icon-wrap`).forEach((w) => {
+      let b = w.querySelector('.badge');
+      if (!n) { b?.remove(); return; }
+      if (!b) { b = document.createElement('span'); b.className = 'badge'; w.appendChild(b); }
+      b.textContent = n;
+    });
+  }
+
+  return { el: root, refresh: render, setBadge };
 }
