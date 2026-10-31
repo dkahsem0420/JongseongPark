@@ -47,8 +47,11 @@ function expand(chat) {
 const norm = (s) => String(s).replace(/\s+/g, '').replace(/[.!?~,…ㅠㅜ]+$/, '');
 function findReply(chat, text) {
   const key = norm(text);
-  const r = (chat.replies || []).find((x) => x.when.some((w) => norm(w) === key));
-  return r ? r.reply : null;
+  const r = (chat.replies || []).find((x) =>
+    (x.when || []).some((w) => norm(w) === key) ||
+    (x.contains || []).some((w) => key.includes(norm(w))));
+  if (!r) return null;
+  return Array.isArray(r.reply) ? r.reply : [r.reply];
 }
 
 const lastMsg = (chat) => { const all = expand(chat).filter((m) => !m.sep); return all[all.length - 1]; };
@@ -229,13 +232,14 @@ export default function create(ctx) {
       setTimeout(() => {
         mine.unread = 0;
         draw();
-        const reply = findReply(chat, text);
-        if (reply) {
+        const replies = findReply(chat, text);
+        // 답장이 여러 개면 1초 간격으로 차례대로
+        (replies || []).forEach((r, k) => {
           setTimeout(() => {
-            list.push({ from: chat.with[0], text: reply, d: now(), raw: false });
+            list.push({ from: chat.with[0], text: r, d: now(), raw: false });
             draw();
-          }, 1300);
-        }
+          }, 1300 + k * 1000);
+        });
       }, 1000);
     });
 
