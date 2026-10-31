@@ -83,7 +83,7 @@ export const KAKAO_CHATS = [
       { from: '박성훈', time: '11:53', text: '헬스장' },
       { from: 'me', time: '11:53', text: '수업중' },
       { from: '심재윤', time: '11:54', text: '점심 먹고 피방?' },
-      { from: 'me', time: '11:55', text: '안돼 여친이랑 만나야돼' },
+      { from: 'me', time: '11:55', text: '안돼 {name이랑/랑} 만나야돼' },
       { from: '심재윤', time: '11:55', text: '하... 진짜 꼴보기 싫다' },
       { from: '박성훈', time: '11:56', text: '봐줘 연애초시잖아 ㅋㅋ' },
       { from: '심재윤', time: '11:56', text: 'ㅠㅠ 나 외로워' },
