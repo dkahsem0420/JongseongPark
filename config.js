@@ -73,7 +73,7 @@ export const CONFIG = {
   // 잠금화면 알림
   lockNotification: {
     icon: 'kakao',
-    title: '{name}',
+    title: 'gf', // 'gf' = 종성이 폰에 저장된 이름 그대로 ({name} ♡)
     body: '선배 어디예요?',
     time: '지금',
     target: '#/app/kakao/chat/gf', // 알림을 누르면 열릴 화면 (여자친구 채팅방)

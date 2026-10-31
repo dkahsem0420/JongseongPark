@@ -2,6 +2,7 @@
 import { CONFIG } from './config.js';
 import { el, esc, screenScale } from './dom.js';
 import { T } from './text.js';
+import { personName } from './people.js';
 import { ICONS, GLYPH } from './icons.js';
 import { storyTime, storyDateLabel } from './clock.js';
 
@@ -43,7 +44,7 @@ export function createLock({ onUnlock, onPasscode = () => {} }) {
           <div class="notif" data-target="${esc(n.target)}">
             <span class="n-icon">${(ICONS[n.icon] || ICONS.messages)()}</span>
             <span class="n-main">
-              <span class="n-top"><b>${T(n.title)}</b><span class="n-time">${esc(n.time)}</span></span>
+              <span class="n-top"><b>${esc(personName(n.title))}</b><span class="n-time">${esc(n.time)}</span></span>
               <span class="n-body">${T(n.body)}</span>
             </span>
           </div>
