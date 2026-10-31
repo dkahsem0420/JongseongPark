@@ -370,6 +370,7 @@ export default function create(ctx) {
     const th = IG_DMS.find((x) => x.id === id);
     if (!th) return dmList();
     const a = acc(th.with);
+    const noProf = !!IG_ACCOUNTS[th.with]?.noProfile; // 공식·DM 전용 계정은 프로필로 이동하지 않음
     const ms = th.messages.map((m) => ({ ...m, d: parseDT(m.at) }));
     const lastMe = ms.map((m) => m.from).lastIndexOf('me');
     const stamp = (d) => {
@@ -391,11 +392,11 @@ export default function create(ctx) {
       <div class="page ig">
         <div class="ig-bar dm">
           <button class="ig-icon" data-nav="back" data-back="*" aria-label="뒤로">${I.back}</button>
-          <span class="ig-dm-who" data-user="${th.with}">${avatar(th.with, 'sm')}<span><b>${esc(a.name)}${IG_ACCOUNTS[th.with]?.verified ? I.verified : ''}</b><small>${esc(a.username)}</small></span></span>
+          <span class="ig-dm-who" ${noProf ? '' : `data-user="${th.with}"`}>${avatar(th.with, 'sm')}<span><b>${esc(a.name)}${IG_ACCOUNTS[th.with]?.verified ? I.verified : ''}</b><small>${esc(a.username)}</small></span></span>
           <span></span>
         </div>
         <div class="page-body ig-body ig-dm-body">
-          <div class="ig-dm-intro" data-user="${th.with}">${avatar(th.with, 'xl')}<b>${esc(a.name)}${IG_ACCOUNTS[th.with]?.verified ? I.verified : ''}</b><small>${esc(a.username)} · Instagram</small><span>프로필 보기</span></div>
+          <div class="ig-dm-intro${noProf ? ' static' : ''}" ${noProf ? '' : `data-user="${th.with}"`}>${avatar(th.with, 'xl')}<b>${esc(a.name)}${IG_ACCOUNTS[th.with]?.verified ? I.verified : ''}</b><small>${esc(a.username)} · Instagram</small>${noProf ? '' : '<span>프로필 보기</span>'}</div>
           ${body}
         </div>
         <div class="ig-dm-input"><span>메시지 입력...</span></div>

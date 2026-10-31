@@ -25,10 +25,10 @@ export const IG_ACCOUNTS = {
   seonghoon: { username: 'seonghoon_p', name: '박성훈', bio: '🏋️',     avatar: 'pf-seonghoon.jpg', followers: 389, following: 255 },
   seoa:      { username: 'seoa.yoon',   name: '윤서아', bio: '',       avatar: 'pf-seoa.jpg',      followers: 921, following: 610 },
 
-  // DM 에만 나오는 계정 (postsCount = 게시물 수 표시용)
-  dog:       { username: 'daily.mungmung',  name: '오늘의 댕댕',   avatar: 'pf-dog.jpg',    followers: 284000, following: 12, postsCount: 1532 },
-  food:      { username: 'seoul.matjip.log', name: '서울 맛집 기록', avatar: 'pf-food.jpg',  followers: 96400,  following: 88, postsCount: 812 },
-  watch:     { username: 'timepiece.lab',   name: '타임피스랩',    avatar: 'pf-watch.jpg',  followers: 128000, following: 3,  postsCount: 2047, verified: true, bio: '시계 정보 · 공식 계정\nDM 문의 평일 10:00~18:00' },
+  // DM 에만 나오는 계정 (noProfile: true → 눌러도 프로필로 가지 않음)
+  dog:       { username: 'daily.mungmung',  name: '오늘의 댕댕',   avatar: 'pf-dog.jpg',    followers: 284000, following: 12, postsCount: 1532 , noProfile: true },
+  food:      { username: 'seoul.matjip.log', name: '서울 맛집 기록', avatar: 'pf-food.jpg',  followers: 96400,  following: 88, postsCount: 812 , noProfile: true },
+  watch:     { username: 'timepiece.lab',   name: '타임피스랩',    avatar: 'pf-watch.jpg',  followers: 128000, following: 3,  postsCount: 2047, verified: true, bio: '시계 정보 · 공식 계정\nDM 문의 평일 10:00~18:00' , noProfile: true },
 };
 
 // 종성이가 팔로우하는 사람 (홈 피드·스토리 줄에 나오는 사람)

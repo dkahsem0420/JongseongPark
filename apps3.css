@@ -192,3 +192,5 @@
 .ig-share-head { display: flex; align-items: center; gap: 7px; padding: 8px 10px; font-size: 13px; }
 .ig-share-cap { display: block; padding: 8px 10px 10px; font-size: 13px; line-height: 1.35; }
 .ig-msg.me .ig-share { margin-left: auto; }
+
+.ig-dm-intro.static, .ig-dm-who:not([data-user]) { cursor: default; }
