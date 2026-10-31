@@ -215,3 +215,5 @@
   touch-action: none;
 }
 .banner.in { transform: none; }
+/* PC 폰 프레임에서는 다이내믹 아일랜드 아래로 */
+@media (min-width: 521px) { .banner { top: 54px; } }
