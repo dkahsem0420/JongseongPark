@@ -62,7 +62,12 @@ export const CONFIG = {
 
   // 프로필 사진 (사진 파일을 올리고 이름을 적으면 카톡·전화·문자에 적용)
   // 예: gf: 'gf.jpg', '박성훈': 'seonghoon.jpg', '심재윤': 'jaeyoon.jpg', mom: 'mom.jpg'
-  avatars: {},
+  // 인스타 프사와 같은 파일을 써서, 한 번 올리면 카톡·전화·문자에도 같이 적용돼요
+  avatars: {
+    gf: 'pf-gf.jpg',
+    '박성훈': 'pf-seonghoon.jpg',
+    '심재윤': 'pf-jaeyoon.jpg',
+  },
 
   // 잠긴 메모 「아이디 & 비밀번호」 — 어떤 비밀번호를 넣어도 절대 열리지 않음.
   // 메모 내용 자체를 코드에 넣지 않으므로, 소스를 들여다봐도 볼 수 있는 게 없습니다.

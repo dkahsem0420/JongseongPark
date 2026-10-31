@@ -16,6 +16,11 @@ import kakao from './app-kakao.js';
 import messages from './app-messages.js';
 import notes from './app-notes.js';
 import instagram from './app-instagram.js';
+import photos from './app-photos.js';
+import calendar from './app-calendar.js';
+import safari from './app-safari.js';
+import music from './app-music.js';
+import clock from './app-clock.js';
 
 const MODULES = {
   settings,
@@ -24,8 +29,11 @@ const MODULES = {
   messages,
   notes,
   instagram,
-  // 3단계: instagram
-  // 4단계: photos, calendar, safari, music, clock
+  photos,
+  calendar,
+  safari,
+  music,
+  clock,
 };
 
 export const getAppModule = (id) => MODULES[id] || placeholder;

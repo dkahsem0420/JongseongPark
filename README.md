@@ -50,6 +50,12 @@ python3 -m http.server 8000
 | 최근 통화 기록 | `data-calls.js` |
 | 메모 | `data-notes.js` |
 | 인스타그램 계정·게시물·댓글·스토리·DM | `data-instagram.js` |
+| 사진 앱 사진·앨범 | `data-photos.js` |
+| 캘린더 일정 | `data-calendar.js` |
+| Safari 검색 기록·즐겨찾기 | `data-safari.js` |
+| 음악 목록 | `data-music.js` |
+| 알람·세계 시계 | `data-clock.js` |
+| **올릴 사진 전체 목록** | `PHOTO-LIST.md` |
 | 저장명(♡, 엄마/아빠), 프로필 사진 | `config.js` → `contacts`, `avatars` |
 | 앱 아이콘을 이미지로 바꾸기 | 이미지를 올리고 `apps.js`에서 `image: '파일명.png'` |
 
