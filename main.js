@@ -36,7 +36,7 @@ window.addEventListener('resize', fit);
 // ── 화면 층 만들기 ──
 const statusbar = createStatusBar();
 const home = createHome({ onOpen: openFromIcon });
-const lock = createLock({ onUnlock });
+const lock = createLock({ onUnlock, onPasscode: (on) => statusbar.hideTime(!on) });
 const setup = createSetup({ onDone: onSetupDone });
 const indicator = el(`<div class="home-ind" role="button" aria-label="홈으로"><span></span></div>`);
 

@@ -46,6 +46,26 @@ export const CONFIG = {
     home: 'home.jpg', // 없으면 잠금화면 배경을 같이 씀
   },
 
+  // 잠금화면 암호 (비워 두면 '' 암호 없이 열림)
+  lock: {
+    passcode: '0420',
+    hint: '',      // 예: '우리가 처음 만난 날' — 비워 두면 힌트 없음
+    hintAfter: 3,  // 몇 번 틀리면 힌트를 보여줄지
+  },
+
+  // 종성이 폰에 저장된 이름
+  contacts: {
+    gf: '{name} ♡',
+    mom: '엄마',
+    dad: '아빠',
+  },
+
+  // 잠긴 메모 「아이디 & 비밀번호」 — 어떤 비밀번호를 넣어도 절대 열리지 않음.
+  // 메모 내용 자체를 코드에 넣지 않으므로, 소스를 들여다봐도 볼 수 있는 게 없습니다.
+  notes: {
+    lockedNeverOpens: true,
+  },
+
   // 잠금화면 알림
   lockNotification: {
     icon: 'kakao',
