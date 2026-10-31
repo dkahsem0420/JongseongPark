@@ -1,7 +1,7 @@
 // 문장 속 {name}, {name아/야} 같은 자리표시자를 방문자 정보로 바꿔 줌
-import { CONFIG } from '../data/config.js';
+import { CONFIG } from './config.js';
 import { getVisitor } from './store.js';
-import { withJosa } from './utils/josa.js';
+import { withJosa } from './josa.js';
 import { esc } from './dom.js';
 
 function vars() {

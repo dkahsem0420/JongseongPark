@@ -1,5 +1,5 @@
 // 이야기 속 시간: 항상 2026년 11월 1일 21:41에서 시작
-import { CONFIG } from '../data/config.js';
+import { CONFIG } from './config.js';
 
 const T0_KEY = 'jsphone.t0';
 

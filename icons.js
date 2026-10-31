@@ -1,6 +1,6 @@
 // 기본 앱 아이콘 — iOS 느낌으로 직접 그린 SVG입니다 (공식 로고 복제 아님).
 // 다른 아이콘을 쓰고 싶으면 data/apps.js 에서 image 경로를 지정하세요.
-import { CONFIG } from '../data/config.js';
+import { CONFIG } from './config.js';
 import { storyDate, storyMinutes, WEEK } from './clock.js';
 
 const svg = (inner) => `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${inner}</svg>`;

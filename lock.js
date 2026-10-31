@@ -1,9 +1,9 @@
 // 잠금화면: 스와이프하거나 탭하면 해제 (비밀번호 없음)
-import { CONFIG } from '../../data/config.js';
-import { el, esc, screenScale } from '../dom.js';
-import { T } from '../text.js';
-import { ICONS, GLYPH } from '../icons.js';
-import { storyTime, storyDateLabel } from '../clock.js';
+import { CONFIG } from './config.js';
+import { el, esc, screenScale } from './dom.js';
+import { T } from './text.js';
+import { ICONS, GLYPH } from './icons.js';
+import { storyTime, storyDateLabel } from './clock.js';
 
 export function createLock({ onUnlock }) {
   const root = el(`<div class="layer lock" aria-label="잠금화면"></div>`);

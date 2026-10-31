@@ -1,15 +1,15 @@
 // 앱 전체 흐름: 이름 입력 → 잠금화면 → 홈화면 → 앱
 // 주소는 해시(#/home, #/app/kakao …) 방식이라 GitHub Pages에서 새로고침해도 404가 나지 않습니다.
-import { CONFIG } from '../data/config.js';
-import { appById } from '../data/apps.js';
+import { CONFIG } from './config.js';
+import { appById } from './apps.js';
 import { el, screenScale } from './dom.js';
 import { t, T } from './text.js';
 import { getVisitor, onVisitorChange, session } from './store.js';
-import { createStatusBar } from './ui/statusbar.js';
-import { createSetup } from './screens/setup.js';
-import { createLock } from './screens/lock.js';
-import { createHome } from './screens/home.js';
-import { getAppModule } from './apps/index.js';
+import { createStatusBar } from './statusbar.js';
+import { createSetup } from './setup.js';
+import { createLock } from './lock.js';
+import { createHome } from './home.js';
+import { getAppModule } from './index.js';
 
 const phone = document.getElementById('phone');
 const screen = document.getElementById('screen');

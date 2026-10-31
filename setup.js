@@ -1,9 +1,9 @@
 // 첫 접속: 방문자 이름 + 인스타 아이디 입력
-import { CONFIG } from '../../data/config.js';
-import { el, esc } from '../dom.js';
-import { withJosa } from '../utils/josa.js';
-import { suggestIds, cleanId } from '../utils/romanize.js';
-import { setVisitor } from '../store.js';
+import { CONFIG } from './config.js';
+import { el, esc } from './dom.js';
+import { withJosa } from './josa.js';
+import { suggestIds, cleanId } from './romanize.js';
+import { setVisitor } from './store.js';
 
 export function createSetup({ onDone }) {
   const ph = CONFIG.visitorPlaceholder;

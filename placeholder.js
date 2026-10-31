@@ -1,7 +1,7 @@
 // 아직 만들지 않은 앱 — 단계별로 실제 앱으로 교체됩니다
-import { el, esc } from '../dom.js';
-import { appIconHtml } from '../icons.js';
-import { navBar } from '../ui/nav.js';
+import { el, esc } from './dom.js';
+import { appIconHtml } from './icons.js';
+import { navBar } from './nav.js';
 
 export default function create(ctx) {
   return {

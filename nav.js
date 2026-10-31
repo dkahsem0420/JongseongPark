@@ -1,6 +1,6 @@
 // iOS 스타일 상단 내비게이션 바 + 큰 제목
-import { esc } from '../dom.js';
-import { GLYPH } from '../icons.js';
+import { esc } from './dom.js';
+import { GLYPH } from './icons.js';
 
 /**
  * @param {object} o

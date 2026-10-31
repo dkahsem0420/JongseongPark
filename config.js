@@ -42,8 +42,8 @@ export const CONFIG = {
   // 배경화면: 파일을 이 경로에 넣으면 자동으로 적용됩니다.
   // 파일이 없으면 기본 어두운 그라데이션이 보입니다.
   wallpapers: {
-    lock: 'assets/wallpapers/lock.jpg',
-    home: 'assets/wallpapers/home.jpg', // 없으면 잠금화면 배경을 같이 씀
+    lock: 'lock.jpg',
+    home: 'home.jpg', // 없으면 잠금화면 배경을 같이 씀
   },
 
   // 잠금화면 알림
@@ -58,7 +58,7 @@ export const CONFIG = {
   // 홈화면 디데이 위젯
   ddayWidget: {
     title: '{name이랑/랑}',
-    image: '', // 예: 'assets/widget/dday.jpg' (비워두면 흰 배경)
+    image: '', // 예: 'dday.jpg' (비워두면 흰 배경)
     opens: 'calendar', // 위젯을 누르면 열릴 앱
   },
 

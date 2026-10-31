@@ -1,6 +1,6 @@
-import { el } from '../dom.js';
-import { GLYPH, batteryGlyph } from '../icons.js';
-import { storyTime } from '../clock.js';
+import { el } from './dom.js';
+import { GLYPH, batteryGlyph } from './icons.js';
+import { storyTime } from './clock.js';
 
 export function createStatusBar() {
   const root = el(`

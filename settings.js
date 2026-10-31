@@ -1,11 +1,11 @@
 // 설정 앱 — 실제 iOS 설정처럼 보이되, '방문자 설정'만 실제로 동작
-import { CONFIG } from '../../data/config.js';
-import { el, esc } from '../dom.js';
-import { GLYPH, ROW_ICON } from '../icons.js';
-import { navBar, largeTitle, wireLargeTitle } from '../ui/nav.js';
-import { getVisitor, setVisitor, clearVisitor } from '../store.js';
-import { withJosa } from '../utils/josa.js';
-import { suggestIds, cleanId } from '../utils/romanize.js';
+import { CONFIG } from './config.js';
+import { el, esc } from './dom.js';
+import { GLYPH, ROW_ICON } from './icons.js';
+import { navBar, largeTitle, wireLargeTitle } from './nav.js';
+import { getVisitor, setVisitor, clearVisitor } from './store.js';
+import { withJosa } from './josa.js';
+import { suggestIds, cleanId } from './romanize.js';
 
 const row = ({ icon, color, label, value = '', go = '', act = '', chevron = true, toggle = null, danger = false }) => `
   <button class="row${danger ? ' danger' : ''}" ${go ? `data-go="${go}"` : ''} ${act ? `data-act="${act}"` : ''}>

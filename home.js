@@ -1,10 +1,10 @@
 // 홈화면: 앱 아이콘, 디데이 위젯, 독
-import { CONFIG } from '../../data/config.js';
-import { HOME_LAYOUT, appById } from '../../data/apps.js';
-import { el, esc } from '../dom.js';
-import { T } from '../text.js';
-import { appIconHtml, GLYPH } from '../icons.js';
-import { ddayCount, formatDot } from '../clock.js';
+import { CONFIG } from './config.js';
+import { HOME_LAYOUT, appById } from './apps.js';
+import { el, esc } from './dom.js';
+import { T } from './text.js';
+import { appIconHtml, GLYPH } from './icons.js';
+import { ddayCount, formatDot } from './clock.js';
 
 export function createHome({ onOpen }) {
   const root = el(`
