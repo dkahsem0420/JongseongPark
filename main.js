@@ -264,7 +264,7 @@ function fireNotification(n) {
   banner.innerHTML = `
     <span class="n-icon">${ICONS.kakao()}</span>
     <span class="n-main">
-      <span class="n-top"><b>${T(personName(n.from))}</b><span class="n-time">지금</span></span>
+      <span class="n-top"><b>${T(n.title || personName(n.from))}</b><span class="n-time">지금</span></span>
       <span class="n-body">${T(n.text)}</span>
     </span>`;
   banner.dataset.target = `#/app/kakao/chat/${n.chat}`;

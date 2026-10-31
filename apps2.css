@@ -242,3 +242,5 @@
 .nt-pw button { padding: 0 6px; font-size: 17px; font-weight: 600; }
 .nt-pw.shake { animation: shake .45s; }
 .nt-err { min-height: 18px; margin-top: 12px; font-size: 14px; color: #FF3B30; }
+
+.kk-metag { flex: none; display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: #555; color: #fff; font-size: 10.5px; font-style: normal; font-weight: 600; }

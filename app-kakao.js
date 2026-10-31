@@ -56,6 +56,8 @@ function findReply(chat, text) {
 
 const lastMsg = (chat) => { const all = expand(chat).filter((m) => !m.sep); return all[all.length - 1]; };
 const chatTitle = (chat) => (chat.title ? t(chat.title) : chat.with.map(personName).join(', '));
+// '나와의 채팅'이면 이름 옆에 '나' 표시
+const meTag = (chat) => (chat.type === 'self' ? '<i class="kk-metag">나</i>' : '');
 const isGroup = (chat) => chat.with.length > 1;
 
 function preview(m) {
@@ -164,7 +166,7 @@ export default function create(ctx) {
             <button class="kk-row" data-chat="${esc(c.id)}">
               ${avatarBox(c)}
               <span class="kk-mid">
-                <span class="kk-name"><b>${esc(chatTitle(c))}</b>${isGroup(c) ? `<em>${c.with.length + 1}</em>` : ''}</span>
+                <span class="kk-name"><b>${esc(chatTitle(c))}</b>${meTag(c)}${isGroup(c) ? `<em>${c.with.length + 1}</em>` : ''}</span>
                 <span class="kk-prev">${esc(preview(m))}</span>
               </span>
               <span class="kk-side">
@@ -184,7 +186,7 @@ export default function create(ctx) {
       <div class="page kk-room">
         <div class="kk-room-head">
           <button class="kk-back" data-nav="back" data-back="" aria-label="뒤로">${I.back}</button>
-          <span class="kk-room-title"><b>${esc(chatTitle(chat))}</b>${isGroup(chat) ? `<em>${chat.with.length + 1}</em>` : ''}</span>
+          <span class="kk-room-title"><b>${esc(chatTitle(chat))}</b>${meTag(chat)}${isGroup(chat) ? `<em>${chat.with.length + 1}</em>` : ''}</span>
           <span class="kk-room-icons">${I.search}${I.menu}</span>
         </div>
         <div class="page-body kk-msgs"></div>

@@ -64,6 +64,7 @@ export const CONFIG = {
   // 예: gf: 'gf.jpg', '박성훈': 'seonghoon.jpg', '심재윤': 'jaeyoon.jpg', mom: 'mom.jpg'
   // 인스타 프사와 같은 파일을 써서, 한 번 올리면 카톡·전화·문자에도 같이 적용돼요
   avatars: {
+    me: 'pf-jay.jpg',
     gf: 'pf-gf.jpg',
     '박성훈': 'pf-seonghoon.jpg',
     '심재윤': 'pf-jaeyoon.jpg',
@@ -87,8 +88,10 @@ export const CONFIG = {
   // 둘러보는 도중 위에서 내려오는 카톡 알림 (잠금 해제 후 after 초 뒤, 방문마다 한 번)
   //  chat : data-kakao.js 의 채팅방 id / from : 보낸 사람 / text : 내용
   //  메시지는 실제 채팅방에도 추가되고, 누르면 그 채팅방으로 이동
+  //  title : 알림 제목을 따로 정할 때 (없으면 보낸 사람 이름)
   notifications: [
     { after: 60, chat: 'gf', from: 'gf', text: '선배 왜 답장 안 해요ㅠ' },
+    { after: 300, chat: 'self', from: 'me', title: '나와의 채팅', text: '{name아/야}... 혹시 내 폰 너한테 있어?' },
   ],
 
   // 홈화면 디데이 위젯
