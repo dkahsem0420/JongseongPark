@@ -3,7 +3,7 @@ import { KAKAO_CHATS } from './data-kakao.js';
 import { el, esc } from './dom.js';
 import { T, t } from './text.js';
 import { personName, avatarHtml } from './people.js';
-import { parseDT, ampm, kakaoListLabel, fullDate } from './fmt.js';
+import { parseDT, ampm, kakaoListLabel, fullDate, now } from './fmt.js';
 
 const I = {
   search: `<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 15.5l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
@@ -18,10 +18,16 @@ const I = {
   tabChat: `<svg viewBox="0 0 24 24" width="26" height="26"><path d="M12 3.5c-5 0-9 3.1-9 7 0 2.5 1.6 4.6 4.1 5.9l-.9 3.6 4-2.6c.6.1 1.2.1 1.8.1 5 0 9-3.1 9-7s-4-7-9-7z" fill="currentColor"/></svg>`,
   tabOpen: `<svg viewBox="0 0 24 24" width="26" height="26"><path d="M12 3.5c-5 0-9 3.1-9 7 0 2.5 1.6 4.6 4.1 5.9l-.9 3.6 4-2.6c.6.1 1.2.1 1.8.1 5 0 9-3.1 9-7s-4-7-9-7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="9" cy="10.5" r="1.2" fill="currentColor"/><circle cx="15" cy="10.5" r="1.2" fill="currentColor"/></svg>`,
   tabShop: `<svg viewBox="0 0 24 24" width="26" height="26"><path d="M5 8h14l-1 12H6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>`,
+  send: `<svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   tabMore: `<svg viewBox="0 0 24 24" width="26" height="26"><circle cx="5.5" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="18.5" cy="12" r="1.7" fill="currentColor"/></svg>`,
 };
 
-// 메시지 목록을 날짜 붙여서 펼치기
+// ── 독자가 직접 보낸 메시지 (이 브라우저 메모리에만 있음 → 새로고침하면 사라짐) ──
+const typed = new Map(); // 채팅방 id → [{ from, text, d, unread, raw }]
+const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const hhmm = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+// 메시지 목록을 날짜 붙여서 펼치기 (+ 독자가 보낸 메시지)
 function expand(chat) {
   let date = '';
   const out = [];
@@ -29,7 +35,20 @@ function expand(chat) {
     if (m.date) { date = m.date; out.push({ sep: date }); continue; }
     out.push({ ...m, d: parseDT(`${date} ${m.time}`) });
   }
+  for (const m of typed.get(chat.id) || []) {
+    const ds = ymd(m.d);
+    if (ds !== date) { date = ds; out.push({ sep: ds }); }
+    out.push({ ...m, time: hhmm(m.d) });
+  }
   return out;
+}
+
+// 자동 답장 찾기: 띄어쓰기와 끝의 문장부호는 무시하고 비교
+const norm = (s) => String(s).replace(/\s+/g, '').replace(/[.!?~,…ㅠㅜ]+$/, '');
+function findReply(chat, text) {
+  const key = norm(text);
+  const r = (chat.replies || []).find((x) => x.when.some((w) => norm(w) === key));
+  return r ? r.reply : null;
 }
 
 const lastMsg = (chat) => { const all = expand(chat).filter((m) => !m.sep); return all[all.length - 1]; };
@@ -40,7 +59,7 @@ function preview(m) {
   if (!m) return '';
   if (m.image) return '사진을 보냈습니다.';
   if (m.card) return m.card.title;
-  return t(m.text).split('\n')[0];
+  return (m.raw ? m.text : t(m.text)).split('\n')[0];
 }
 
 function avatarBox(chat) {
@@ -51,11 +70,47 @@ function avatarBox(chat) {
   return `<span class="kk-av${chat.type === 'channel' ? ' channel' : ''}">${avatarHtml(chat.with[0])}</span>`;
 }
 
-function textHtml(s) {
-  return T(s).replace(/\n/g, '<br>');
-}
+const textHtml = (m) => (m.raw ? esc(m.text) : T(m.text)).replace(/\n/g, '<br>');
 
 const opened = new Set(); // 이번 방문에서 열어 본 채팅방
+
+function messagesHtml(chat) {
+  const items = expand(chat);
+  const isMsg = (x) => x && !x.sep;
+  const sameRun = (a, b) => isMsg(a) && isMsg(b) && a.from === b.from && a.time === b.time && a.d.toDateString() === b.d.toDateString();
+
+  return items.map((m, i) => {
+    if (m.sep) return `<div class="kk-date"><span>${esc(fullDate(parseDT(m.sep)))}</span></div>`;
+    const first = !sameRun(items[i - 1], m);
+    const last = !sameRun(m, items[i + 1]);
+    const un = m.unread ? `<i>${m.unread}</i>` : '';
+    const time = last ? `<span class="kk-t">${un}${esc(ampm(m.d))}</span>` : (un ? `<span class="kk-t">${un}</span>` : '');
+    let content;
+    if (m.image) content = `<div class="kk-bub img"><img src="${esc(m.image)}" alt="" onerror="this.parentNode.classList.add('missing');this.remove()"></div>`;
+    else if (m.card) content = `
+      <div class="kk-card">
+        <div class="kk-card-head">${esc(t(m.card.title))}</div>
+        <div class="kk-card-body">
+          <p>${textHtml({ text: m.card.text || '' })}</p>
+          ${(m.card.rows || []).map(([k, v]) => `<div class="kk-card-row"><span>${esc(k)}</span><b>${esc(t(v))}</b></div>`).join('')}
+          ${m.card.button ? `<span class="kk-card-btn">${esc(m.card.button)}</span>` : ''}
+        </div>
+      </div>`;
+    else content = `<div class="kk-bub${first ? ' tail' : ''}">${textHtml(m)}</div>`;
+
+    if (m.from === 'me') {
+      return `<div class="kk-msg me${first ? ' first' : ''}"><div class="kk-line">${time}${content}</div></div>`;
+    }
+    return `
+      <div class="kk-msg them${first ? ' first' : ''}">
+        <span class="kk-av-s">${first ? `<span class="kk-av${chat.type === 'channel' ? ' channel' : ''}">${avatarHtml(m.from)}</span>` : ''}</span>
+        <div class="kk-col">
+          ${first ? `<span class="kk-sender">${esc(personName(m.from))}</span>` : ''}
+          <div class="kk-line">${content}${time}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
 
 export default function create(ctx) {
   function list() {
@@ -98,40 +153,6 @@ export default function create(ctx) {
     const chat = KAKAO_CHATS.find((c) => c.id === id);
     if (!chat) return list();
     opened.add(chat.id);
-    const items = expand(chat);
-    const isMsg = (x) => x && !x.sep;
-    const sameRun = (a, b) => isMsg(a) && isMsg(b) && a.from === b.from && a.time === b.time && a.d.toDateString() === b.d.toDateString();
-
-    const body = items.map((m, i) => {
-      if (m.sep) return `<div class="kk-date"><span>${esc(fullDate(parseDT(m.sep)))}</span></div>`;
-      const first = !sameRun(items[i - 1], m);
-      const last = !sameRun(m, items[i + 1]);
-      const time = last ? `<span class="kk-t">${m.unread ? `<i>${m.unread}</i>` : ''}${esc(ampm(m.d))}</span>` : (m.unread ? `<span class="kk-t"><i>${m.unread}</i></span>` : '');
-      let content;
-      if (m.image) content = `<div class="kk-bub img"><img src="${esc(m.image)}" alt="" onerror="this.parentNode.classList.add('missing');this.remove()"></div>`;
-      else if (m.card) content = `
-        <div class="kk-card">
-          <div class="kk-card-head">${esc(t(m.card.title))}</div>
-          <div class="kk-card-body">
-            <p>${textHtml(m.card.text || '')}</p>
-            ${(m.card.rows || []).map(([k, v]) => `<div class="kk-card-row"><span>${esc(k)}</span><b>${esc(t(v))}</b></div>`).join('')}
-            ${m.card.button ? `<span class="kk-card-btn">${esc(m.card.button)}</span>` : ''}
-          </div>
-        </div>`;
-      else content = `<div class="kk-bub${first ? ' tail' : ''}">${textHtml(m.text)}</div>`;
-
-      if (m.from === 'me') {
-        return `<div class="kk-msg me${first ? ' first' : ''}"><div class="kk-line">${time}${content}</div></div>`;
-      }
-      return `
-        <div class="kk-msg them${first ? ' first' : ''}">
-          <span class="kk-av-s">${first ? `<span class="kk-av${chat.type === 'channel' ? ' channel' : ''}">${avatarHtml(m.from)}</span>` : ''}</span>
-          <div class="kk-col">
-            ${first ? `<span class="kk-sender">${esc(personName(m.from))}</span>` : ''}
-            <div class="kk-line">${content}${time}</div>
-          </div>
-        </div>`;
-    }).join('');
 
     const p = el(`
       <div class="page kk-room">
@@ -140,15 +161,54 @@ export default function create(ctx) {
           <span class="kk-room-title"><b>${esc(chatTitle(chat))}</b>${isGroup(chat) ? `<em>${chat.with.length + 1}</em>` : ''}</span>
           <span class="kk-room-icons">${I.search}${I.menu}</span>
         </div>
-        <div class="page-body kk-msgs">${body}</div>
-        <div class="kk-input">
+        <div class="page-body kk-msgs"></div>
+        <form class="kk-input" autocomplete="off">
           <span class="kk-plus">${I.plus}</span>
-          <span class="kk-field"><span>메시지 입력</span>${I.smile}</span>
+          <label class="kk-field"><input class="kk-text" maxlength="300" placeholder="메시지 입력" enterkeyhint="send">${I.smile}</label>
           <span class="kk-hash">${I.hash}</span>
-        </div>
+          <button type="submit" class="kk-send" aria-label="전송">${I.send}</button>
+        </form>
       </div>`);
     const scroller = p.querySelector('.kk-msgs');
-    requestAnimationFrame(() => { scroller.scrollTop = scroller.scrollHeight; });
+    const form = p.querySelector('.kk-input');
+    const input = p.querySelector('.kk-text');
+
+    const draw = () => {
+      scroller.innerHTML = messagesHtml(chat);
+      requestAnimationFrame(() => { scroller.scrollTop = scroller.scrollHeight; });
+    };
+    draw();
+
+    input.addEventListener('input', () => form.classList.toggle('has-text', !!input.value.trim()));
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      form.classList.remove('has-text');
+      input.focus();
+
+      const list = typed.get(chat.id) || [];
+      typed.set(chat.id, list);
+      const mine = { from: 'me', text, d: now(), unread: 1, raw: true };
+      list.push(mine);
+      draw();
+
+      // 1초 뒤 읽음 → 미리 써 둔 답장이 있으면 조금 뒤 답장
+      setTimeout(() => {
+        mine.unread = 0;
+        draw();
+        const reply = findReply(chat, text);
+        if (reply) {
+          setTimeout(() => {
+            list.push({ from: chat.with[0], text: reply, d: now(), raw: false });
+            draw();
+          }, 1300);
+        }
+      }, 1000);
+    });
+
     return p;
   }
 
