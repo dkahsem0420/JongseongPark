@@ -10,7 +10,7 @@ import { createSetup } from './setup.js';
 import { createLock } from './lock.js';
 import { createHome } from './home.js';
 import { getAppModule } from './index.js';
-import { receiveKakao, kakaoUnreadTotal, kakaoRoomOpen } from './app-kakao.js';
+import { receiveKakao, kakaoUnreadTotal, kakaoRoomOpen, markEnding } from './app-kakao.js';
 import { personName } from './people.js';
 import { ICONS } from './icons.js';
 import { preloadImages } from './preload.js';
@@ -245,6 +245,7 @@ window.addEventListener('hashchange', route);
 
 // ── 둘러보는 도중 내려오는 카톡 알림 (config.js 의 notifications) ──
 let notifScheduled = false;
+let sentNoticed = false;
 let bannerTimer = null;
 function scheduleNotifications() {
   if (notifScheduled) return;
@@ -257,7 +258,8 @@ function fireNotification(n) {
   // 잠겨 있거나 이름 입력 중이면 풀릴 때까지 기다림
   if (!session.unlocked || !getVisitor() || lock.visible) { setTimeout(() => fireNotification(n), 2000); return; }
   const viewing = kakaoRoomOpen(n.chat);
-  receiveKakao(n.chat, n.from, n.text, { read: viewing });
+  if (n.ending) { markEnding(); sentNoticed = true; } // 엔딩 뒤에는 '...?' 반응 안 나오게
+  receiveKakao(n.chat, n.from, t(n.text), { read: viewing });
   home.setBadge('kakao', kakaoUnreadTotal());
   navigator.vibrate?.(60);
   if (viewing) return; // 이미 그 채팅방을 보고 있으면 배너 없이 메시지만
@@ -274,7 +276,6 @@ function fireNotification(n) {
   bannerTimer = setTimeout(hideBanner, 5500);
 }
 // 독자가 종성 폰으로 처음 카톡을 보내면 → 잠시 뒤 '나와의 채팅'으로 종성 반응
-let sentNoticed = false;
 window.addEventListener('kakao:sent', () => {
   const f = CONFIG.firstSendNotice;
   if (!f || sentNoticed) return;

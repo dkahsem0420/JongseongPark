@@ -91,6 +91,19 @@ export function receiveKakao(chatId, from, text, { read = false } = {}) {
   if (!read) unread.set(chatId, (unread.get(chatId) || 0) + 1);
   window.dispatchEvent(new CustomEvent('kakao:update', { detail: chatId }));
 }
+// 엔딩('혹시 내 폰 너한테 있어?')이 왔는지, 그 뒤 답장을 이미 했는지
+const ending = { arrived: false, answered: false };
+export const markEnding = () => { ending.arrived = true; };
+
+function endingReply(chat, text) {
+  if (chat.type !== 'self' || !ending.arrived || ending.answered || !chat.afterEnding) return null;
+  const key = norm(text);
+  const r = chat.afterEnding.find((x) => x.any || (x.contains || []).some((w) => key.includes(norm(w))));
+  if (!r) return null;
+  ending.answered = true;
+  return Array.isArray(r.reply) ? r.reply : [r.reply];
+}
+
 const isOpenRoom = (chatId) => location.hash === `#/app/kakao/chat/${chatId}`;
 export const kakaoRoomOpen = isOpenRoom;
 
@@ -247,8 +260,14 @@ export default function create(ctx) {
         }, 2300 + k * 1000);
       });
 
-      // 다른 사람에게 처음 보냈을 때 → 종성이 PC 카톡으로 눈치챔 (main.js 가 처리)
-      if (chat.type !== 'self') window.dispatchEvent(new CustomEvent('kakao:sent', { detail: chat.id }));
+      // 엔딩 뒤 나와의 채팅에 답하면 → 종성이 PC 카톡으로 답장 (한 번)
+      const er = endingReply(chat, text);
+      if (er) {
+        er.forEach((r, k) => setTimeout(() => receiveKakao(chat.id, 'me', r, { read: true }), 2500 + k * 1500));
+        return;
+      }
+      // 처음 보냈을 때 → 종성이 PC 카톡으로 눈치챔 (main.js 가 처리, 방문마다 한 번)
+      window.dispatchEvent(new CustomEvent('kakao:sent', { detail: chat.id }));
     });
 
     return p;

@@ -89,7 +89,7 @@ export const CONFIG = {
   //  메시지는 실제 채팅방에도 추가되고, 누르면 그 채팅방으로 이동
   //  title : 알림 제목을 따로 정할 때 (없으면 보낸 사람 이름)
   notifications: [
-    { after: 300, chat: 'self', from: 'me', title: '나와의 채팅', text: '{name아/야}... 혹시 내 폰 너한테 있어?' },
+    { after: 300, chat: 'self', from: 'me', title: '나와의 채팅', text: '{name아/야}... 혹시 내 폰 너한테 있어?', ending: true },
   ],
 
   // 독자가 종성 폰으로 카톡을 처음 보냈을 때 (방문마다 한 번)
