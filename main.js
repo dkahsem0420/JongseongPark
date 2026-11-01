@@ -254,9 +254,12 @@ function scheduleNotifications() {
     setTimeout(() => fireNotification(n), (n.after || 60) * 1000);
   }
 }
+const fired = new Set(); // 알림은 각각 한 번만
 function fireNotification(n) {
+  if (n.ending || n.after) { if (fired.has(n)) return; }
   // 잠겨 있거나 이름 입력 중이면 풀릴 때까지 기다림
   if (!session.unlocked || !getVisitor() || lock.visible) { setTimeout(() => fireNotification(n), 2000); return; }
+  if (n.ending || n.after) fired.add(n);
   const viewing = kakaoRoomOpen(n.chat);
   if (n.ending) { markEnding(); sentNoticed = true; } // 엔딩 뒤에는 '...?' 반응 안 나오게
   receiveKakao(n.chat, n.from, t(n.text), { read: viewing });
@@ -282,8 +285,11 @@ window.addEventListener('kakao:sent', () => {
   sentNoticed = true;
   const texts = f.texts || [f.text];
   texts.forEach((text, k) => {
-    setTimeout(() => fireNotification({ ...f, text }), ((f.after || 4) + k * 1.5) * 1000);
+    setTimeout(() => fireNotification({ ...f, text, after: 0 }), ((f.after || 4) + k * 1.5) * 1000);
   });
+  // 이미 눈치챘으니 엔딩을 앞당김 (원래 시간보다 늦어지진 않음)
+  const end = (CONFIG.notifications || []).find((x) => x.ending);
+  if (end && f.endingAfter) setTimeout(() => fireNotification(end), ((f.after || 4) + f.endingAfter) * 1000);
 });
 
 function hideBanner() {
