@@ -80,7 +80,7 @@ export const CONFIG = {
     icon: 'kakao',
     title: 'gf', // 'gf' = 종성이 폰에 저장된 이름 그대로 ({name} ♡)
     body: '선배 뭐해요?',
-    time: '지금',
+    time: '30분 전', // 여주가 종성 폰을 갖게 되기 전에 보낸 메시지
     target: '#/app/kakao/chat/gf', // 알림을 누르면 열릴 화면 (여자친구 채팅방)
   },
 
@@ -89,7 +89,6 @@ export const CONFIG = {
   //  메시지는 실제 채팅방에도 추가되고, 누르면 그 채팅방으로 이동
   //  title : 알림 제목을 따로 정할 때 (없으면 보낸 사람 이름)
   notifications: [
-    { after: 60, chat: 'gf', from: 'gf', text: '선배 왜 답장 안 해요ㅠ' },
     { after: 300, chat: 'self', from: 'me', title: '나와의 채팅', text: '{name아/야}... 혹시 내 폰 너한테 있어?' },
   ],
 

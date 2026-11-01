@@ -139,7 +139,7 @@ export default function create(ctx) {
             <div class="row"><span class="rbody"><span class="rlabel">캘린더</span><span class="rright"><i class="cal-dot" style="background:${cal.color}"></i>${esc(cal.name)}</span></span></div>
             <div class="row"><span class="rbody"><span class="rlabel">알림</span><span class="rright">${e.time ? '30분 전' : '당일 (오전 9시)'}</span></span></div>
           </div>
-          ${e.note ? `<div class="group cal-note"><p class="cal-note-t">메모</p><p>${T(e.note)}</p></div>` : ''}
+          ${e.note ? `<div class="group cal-note"><p class="cal-note-t">메모</p><p>${T(e.note).replace(/\n/g, '<br>')}</p></div>` : ''}
           <div class="group"><div class="row"><span class="rbody"><span class="rlabel" style="color:#FF3B30">이벤트 삭제</span></span></div></div>
         </div>
       </div>`);

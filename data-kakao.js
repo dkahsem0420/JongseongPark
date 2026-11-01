@@ -19,6 +19,7 @@
 //   { from: 'gf', time: '09:21', text: '...' }     ← 상대가 보낸 것
 //   { from: 'me', time: '09:21', image: 'latte.jpg' }  ← 사진
 //   { from: 'me', time: '09:21', text: '...', unread: 1 }  ← 상대가 아직 안 읽음 (노란 1)
+//   { from: 'me', time: '00:01', call: { dur: '1:52:10' } }  ← 보이스톡 (missed: true 면 부재중)
 //   { from: '가게', time: '..', card: { title, text, rows: [['항목','내용']], button } } ← 안내 카드
 //
 //  문장 속 {name}, {name아/야} 등은 방문자 이름으로 바뀝니다. 줄바꿈은 \n
@@ -43,6 +44,84 @@ export const KAKAO_CHATS = [
       { when: ['학교야', '학교'], reply: '우리 언제 만나여' },
     ],
     messages: [
+      // ── 10/2 고백한 날 → 데이트 끝나고 자정 넘어서 ──
+      { date: '2026-10-03' },
+      { from: 'gf', time: '00:10', text: '선배 조심히 가요' },
+      { from: 'gf', time: '00:11', text: '오늘 재밌었어요 진짜' },
+      { from: 'me', time: '00:11', text: '응.. 조심히 들어가' },
+      { from: 'gf', time: '00:12', text: 'ㅋㅋㅋㅋㅋ' },
+      { from: 'gf', time: '00:12', text: '텍스트로도 축 처진 게 느껴지는데..' },
+      { from: 'me', time: '00:12', text: '이렇게까지 모든 일에 불운이 따를 수 있다는 걸 오늘 처음 알았어' },
+      { from: 'gf', time: '00:13', text: '뭐 딱히 불운이랄 건 없었는데' },
+      { from: 'gf', time: '00:14', text: '비록 식당 셰프님이 급성 장염 걸리시고..' },
+      { from: 'gf', time: '00:15', text: '케이블카 시설점검 떠서 운행중단됐고..' },
+      { from: 'gf', time: '00:16', text: '전망대는 안개 껴서 아무것도 안 보였지만' },
+      { from: 'me', time: '00:17', text: '야아... 나 진짜 울 것 같아ㅠㅠ' },
+      { from: 'gf', time: '00:17', text: '장난이에요 ㅋㅋㅋ' },
+      { from: 'me', time: '00:18', text: '오늘 하루는 없었던 걸로 치면 안 될까?' },
+      { from: 'me', time: '00:18', text: '내가 다시 준비해올게' },
+      { from: 'me', time: '00:18', text: '완벽한 코스로' },
+      { from: 'gf', time: '00:19', text: '엥' },
+      { from: 'gf', time: '00:19', text: '싫어요' },
+      { from: 'gf', time: '00:19', text: '그건 아니죠' },
+      { from: 'me', time: '00:19', text: 'ㅠㅠ' },
+      { from: 'gf', time: '00:22', text: '오늘 하루 없었던 걸로 치면' },
+      { from: 'gf', time: '00:22', text: '뽀뽀한 것도 없었던 일로?' },
+      { from: 'gf', time: '00:25', text: '선배' },
+      { from: 'gf', time: '00:25', text: '왜 답이 없어요' },
+      { from: 'gf', time: '00:30', text: '아니ㅋㅋㅋㅋㅋㅋ' },
+      { from: 'me', time: '00:32', text: '하하..' },
+      { from: 'me', time: '00:32', text: '뭐라고 반응해야 될지 모르겠네..' },
+      { from: 'gf', time: '02:48', text: '선배' },
+      { from: 'gf', time: '02:48', text: '자요?' },
+      { from: 'gf', time: '02:53', text: '전 오늘 진짜 좋았어요' },
+      { from: 'gf', time: '02:53', text: '계획한 거 다 틀어졌는데 끝까지 저 웃게 해주려고 노력하는 것도 좋았고' },
+      { from: 'gf', time: '02:54', text: '평소에 그렇게 여유롭던 사람이 오늘은 하루종일 긴장해서 뚝딱이는 것도 귀여웠고' },
+      { from: 'gf', time: '02:55', text: '전망대에서도 저 추울까봐 안절부절못하는 것까지 좋았어요' },
+      { from: 'gf', time: '02:56', text: '그리고 저 좋아한다고 말해준 것도요' },
+      { from: 'gf', time: '02:56', text: '전 그냥 선배랑 있으면 뭐든 다 재밌어요' },
+      { from: 'gf', time: '02:57', text: '그러니까 너무 속상해하지 마요' },
+      { from: 'gf', time: '02:58', text: '잘 자요 선배!!' },
+      { from: 'gf', time: '03:04', text: '♡' },
+      { from: 'me', time: '09:47', text: '지금 봤어' },
+      { from: 'me', time: '09:47', text: '아침부터 이거 보고 혼자 웃고 있음' },
+      { from: 'me', time: '09:48', text: '고마워 {name아/야}' },
+      { from: 'me', time: '09:48', text: '다음엔 진짜 완벽하게 해볼게' },
+      { from: 'gf', time: '10:15', text: 'ㅋㅋㅋ 기대할게요' },
+
+      // ── 보고싶다 / 새벽 보이스톡 ──
+      { date: '2026-10-09' },
+      { from: 'gf', time: '23:58', text: '선배 자요?' },
+      { from: 'me', time: '23:58', text: '아니' },
+      { from: 'me', time: '23:58', text: '왜 안 자' },
+      { from: 'gf', time: '23:59', text: '그냥요' },
+      { from: 'gf', time: '23:59', text: '보고싶어서요..' },
+      { date: '2026-10-10' },
+      { from: 'me', time: '00:00', text: '나도 보고싶어' },
+      { from: 'me', time: '00:01', text: '전화할까?' },
+      { from: 'gf', time: '00:01', text: '넹' },
+      { from: 'me', time: '00:01', call: { dur: '1:52:10' } },
+      { from: 'gf', time: '01:54', text: '잘 자요 선배' },
+      { from: 'me', time: '01:54', text: '너도 잘 자' },
+
+      { date: '2026-10-16' },
+      { from: 'me', time: '22:40', text: '뭐해' },
+      { from: 'gf', time: '22:52', text: '과제요ㅠㅠ' },
+      { from: 'me', time: '22:52', text: '보고싶다' },
+      { from: 'gf', time: '22:53', text: '오늘 낮에 봤잖아요ㅋㅋ' },
+      { from: 'me', time: '22:53', text: '그래도' },
+      { from: 'gf', time: '22:54', text: '...저두요' },
+
+      { date: '2026-10-22' },
+      { from: 'gf', time: '01:12', call: { missed: true } },
+      { from: 'me', time: '01:20', text: '미안 씻고 나왔어' },
+      { from: 'me', time: '01:20', call: { dur: '2:31:44' } },
+      { from: 'gf', time: '03:52', text: '선배 먼저 잠든 거 다 들었어요' },
+      { from: 'gf', time: '03:52', text: '숨소리 귀여워서 안 끊었음ㅋㅋ' },
+      { from: 'me', time: '08:31', text: '...진짜?' },
+      { from: 'me', time: '08:31', text: '나 코 골았어?' },
+      { from: 'gf', time: '08:40', text: '비밀이에요' },
+
       { date: '2026-10-30' },
       { from: 'me', time: '09:24', text: '일어났어?' },
       { from: 'gf', time: '09:31', text: '넹 방금요ㅠㅠ' },
@@ -76,7 +155,7 @@ export const KAKAO_CHATS = [
       { from: 'me', time: '12:17', text: '저번에 갔던 곳 근처' },
       { from: 'gf', time: '12:18', text: '넹ㅎㅎ' },
       { date: '2026-11-01' },
-      { from: 'gf', time: '21:41', text: '선배 뭐해요?' },
+      { from: 'gf', time: '21:11', text: '선배 뭐해요?' },
     ],
   },
 
@@ -106,6 +185,8 @@ export const KAKAO_CHATS = [
     type: 'self',
     with: ['me'],
     messages: [
+      { date: '2026-10-01' },
+      { from: 'me', time: '23:20', text: '내일\n16:00 꽃 픽업\n18:00 오스테리아 루체\n케이블카 → 전망대\n꽃은 차에 두기' },
       { date: '2026-10-20' },
       { from: 'me', time: '13:10', text: '재무관리 퀴즈 11/3\n범위 4~6장' },
       { date: '2026-10-26' },
@@ -182,7 +263,38 @@ export const KAKAO_CHATS = [
     ],
   },
 
-  // ── D. 레스토랑 예약 ──
+  // ── 고백한 날 예약했다가 취소된 식당 ──
+  {
+    id: 'restaurant-cancel',
+    title: '오스테리아 루체',
+    type: 'channel',
+    with: ['오스테리아 루체'],
+    messages: [
+      { date: '2026-09-26' },
+      {
+        from: '오스테리아 루체', time: '23:12',
+        card: {
+          title: '예약 확정 안내',
+          text: '박종성님의 예약이 확정되었습니다.',
+          rows: [['일시', '2026.10.02(금) 18:00'], ['인원', '2명'], ['요청사항', '창가 자리 부탁드립니다']],
+          button: '예약 상세 보기',
+        },
+      },
+      { date: '2026-10-02' },
+      {
+        from: '오스테리아 루체', time: '14:05',
+        card: {
+          title: '예약 취소 안내',
+          text: '셰프의 갑작스러운 건강 문제로 금일 디너 영업이 어려워 부득이하게 예약이 취소되었습니다.\n이용에 불편을 드려 진심으로 사과드립니다.',
+          rows: [['일시', '2026.10.02(금) 18:00'], ['상태', '취소됨']],
+        },
+      },
+      { from: 'me', time: '14:21', text: '아 네 알겠습니다..' },
+      { from: 'me', time: '14:21', text: '셰프님 쾌차하세요' },
+    ],
+  },
+
+  // ── D. 레스토랑 예약 (10/2 다시 하기) ──
   {
     id: 'restaurant',
     title: '라 메종 블랑',

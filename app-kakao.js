@@ -19,6 +19,7 @@ const I = {
   tabOpen: `<svg viewBox="0 0 24 24" width="26" height="26"><path d="M12 3.5c-5 0-9 3.1-9 7 0 2.5 1.6 4.6 4.1 5.9l-.9 3.6 4-2.6c.6.1 1.2.1 1.8.1 5 0 9-3.1 9-7s-4-7-9-7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="9" cy="10.5" r="1.2" fill="currentColor"/><circle cx="15" cy="10.5" r="1.2" fill="currentColor"/></svg>`,
   tabShop: `<svg viewBox="0 0 24 24" width="26" height="26"><path d="M5 8h14l-1 12H6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>`,
   send: `<svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  phone: `<svg viewBox="0 0 24 24" width="18" height="18"><path d="M7.6 3.5c-.8 0-2 .9-2.3 2-.5 1.9.4 5 3.4 8s6.2 4 8.1 3.4c1.1-.3 2-1.5 2-2.3 0-.4-.3-.8-.7-1l-2.6-1.5c-.4-.2-1-.2-1.3.2l-.9 1c-.2.2-.6.3-.8.1-.9-.5-1.8-1.2-2.6-2s-1.5-1.7-2-2.6c-.2-.3-.1-.6.1-.8l1-.9c.4-.3.5-.9.2-1.3L8.6 4.2c-.2-.4-.6-.7-1-.7z" fill="currentColor"/></svg>`,
   tabMore: `<svg viewBox="0 0 24 24" width="26" height="26"><circle cx="5.5" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="18.5" cy="12" r="1.7" fill="currentColor"/></svg>`,
 };
 
@@ -64,6 +65,7 @@ function preview(m) {
   if (!m) return '';
   if (m.image) return '사진을 보냈습니다.';
   if (m.card) return m.card.title;
+  if (m.call) return m.call.missed ? '부재중 보이스톡' : '보이스톡';
   return (m.raw ? m.text : t(m.text)).split('\n')[0];
 }
 
@@ -113,6 +115,11 @@ function messagesHtml(chat) {
           ${(m.card.rows || []).map(([k, v]) => `<div class="kk-card-row"><span>${esc(k)}</span><b>${esc(t(v))}</b></div>`).join('')}
           ${m.card.button ? `<span class="kk-card-btn">${esc(m.card.button)}</span>` : ''}
         </div>
+      </div>`;
+    else if (m.call) content = `
+      <div class="kk-bub kk-call${first ? ' tail' : ''}${m.call.missed ? ' missed' : ''}">
+        <span class="kk-call-ico">${I.phone}</span>
+        <span class="kk-call-txt"><b>${m.call.missed ? '부재중 보이스톡' : '보이스톡'}</b>${m.call.missed ? '' : `<small>통화시간 ${esc(m.call.dur || '')}</small>`}</span>
       </div>`;
     else content = `<div class="kk-bub${first ? ' tail' : ''}">${textHtml(m)}</div>`;
 
