@@ -260,13 +260,18 @@ function scheduleNotifications() {
 const fired = new Set(); // 알림은 각각 한 번만
 let endingDone = false; // 엔딩 대화가 이미 끝났으면 남은 알림은 생략
 function fireNotification(n) {
-  if (endingDone && n.chat === 'self') return; // 엔딩 대화가 끝났으면 나와의 채팅 알림만 생략
+  if (endingDone && n.chat === 'self' && !n.force) return; // 엔딩 대화가 끝났으면 나와의 채팅 알림만 생략
   if (n.ending || n.after) { if (fired.has(n)) return; }
   // 잠겨 있거나 이름 입력 중이면 풀릴 때까지 기다림
   if (!session.unlocked || !getVisitor() || lock.visible) { setTimeout(() => fireNotification(n), 2000); return; }
   if (n.ending || n.after) fired.add(n);
   const viewing = kakaoRoomOpen(n.chat);
-  if (n.ending) { markEnding(); sentNoticed = true; } // 엔딩 뒤에는 '...?' 반응 안 나오게
+  if (n.ending) {
+    markEnding(); sentNoticed = true; // 엔딩 뒤에는 '...?' 반응 안 나오게
+    // 엔딩 질문에 답이 없으면 일정 시간 뒤 종성 전화
+    const jc = CONFIG.jongseongCall;
+    if (jc) setTimeout(() => scheduleJongseongCall(0), (jc.ifNoAnswer || 60) * 1000);
+  }
   receiveKakao(n.chat, n.from, t(n.text), { read: viewing });
   home.setBadge('kakao', kakaoUnreadTotal());
   navigator.vibrate?.(60);
@@ -307,12 +312,26 @@ window.addEventListener('kakao:ending-done', () => { endingDone = true; sentNoti
 
 // ── 걸려오는 전화 (config.js 의 incomingCall) ──
 let callScheduled = false;
+let jongseongCalled = false; // 종성이 재윤 폰으로 걸었으면 재윤 전화는 생략
+let callActive = false;
+let lastCallEnd = 0; // 전화가 연달아 오지 않게 (끝나고 최소 10초)
 function scheduleIncomingCall() {
   const c = CONFIG.incomingCall;
   if (!c || callScheduled) return;
   callScheduled = true;
-  setTimeout(() => showIncomingCall(c), (c.after || 70) * 1000);
+  setTimeout(() => { if (!jongseongCalled) showIncomingCall(c); }, (c.after || 70) * 1000);
 }
+// 엔딩 뒤 종성 전화 (한 번만)
+function scheduleJongseongCall(delaySec) {
+  const jc = CONFIG.jongseongCall;
+  if (!jc || jongseongCalled) return;
+  jongseongCalled = true;
+  setTimeout(() => showIncomingCall(jc), delaySec * 1000);
+}
+window.addEventListener('kakao:ending-answered', () => {
+  const jc = CONFIG.jongseongCall;
+  if (jc) setTimeout(() => scheduleJongseongCall(0), (jc.afterAnswer || 25) * 1000);
+});
 const pad2 = (n) => String(n).padStart(2, '0');
 const stamp = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 const PHONE_DOWN = `<svg viewBox="0 0 24 24" width="34" height="34"><path d="M12 9c-2.6 0-5.1.5-7.4 1.5-.9.4-1.5 1.3-1.5 2.3v1.6c0 .7.6 1.2 1.3 1.1l3.2-.5c.6-.1 1-.6 1-1.2v-1.6c1.1-.4 2.2-.5 3.4-.5s2.3.1 3.4.5v1.6c0 .6.4 1.1 1 1.2l3.2.5c.7.1 1.3-.4 1.3-1.1v-1.6c0-1-.6-1.9-1.5-2.3C17.1 9.5 14.6 9 12 9z" fill="#fff"/></svg>`;
@@ -321,7 +340,8 @@ const CALL_BTNS = [['소리 끔', 'M5 9h3l4-3.5v13L8 15H5zM16 9l5 6M21 9l-5 6'],
 
 function showIncomingCall(c) {
   // 잠겨 있거나 다른 화면 중이면 풀릴 때까지 기다림
-  if (!session.unlocked || !getVisitor() || lock.visible) { setTimeout(() => showIncomingCall(c), 2000); return; }
+  if (!session.unlocked || !getVisitor() || lock.visible || callActive || Date.now() - lastCallEnd < 10000) { setTimeout(() => showIncomingCall(c), 2000); return; }
+  callActive = true;
   const startedAt = now();
   const ov = el(`
     <div class="call-ov ringing">
@@ -350,6 +370,8 @@ function showIncomingCall(c) {
   const close = () => {
     clearInterval(vib); clearInterval(tick); timers.forEach(clearTimeout);
     navigator.vibrate?.(0);
+    callActive = false;
+    lastCallEnd = Date.now();
     ov.classList.remove('in');
     setTimeout(() => ov.remove(), 350);
     const st = cur ? (cur.mod.statusStyle || 'dark') : 'light';
@@ -375,7 +397,7 @@ function showIncomingCall(c) {
     close();
     const d = c.declined;
     const n = (d?.texts || []).length;
-    (d?.texts || []).forEach((text, k) => setTimeout(() => fireNotification({ chat: d.chat, from: c.from, text }), 3000 + k * 1600));
+    (d?.texts || []).forEach((text, k) => setTimeout(() => fireNotification({ chat: d.chat, from: d.from || c.from, title: d.title, text, force: true }), 3000 + k * 1600));
     followUp(false, 3000 + n * 1600);
   };
   const hangup = () => {

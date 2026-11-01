@@ -108,6 +108,7 @@ function selfChatReaction(chat, text) {
   if (ending.arrived) {
     // 엔딩 질문 뒤 → 아무 말에나 마무리
     ending.answered = true;
+    window.dispatchEvent(new CustomEvent('kakao:ending-answered'));
     return matchEnding(chat, text, true);
   }
   // 엔딩 전 ('...?' 를 보고 바로 답한 경우 등)
@@ -116,6 +117,7 @@ function selfChatReaction(chat, text) {
     // 이미 인정/잡아뗐으니 질문 없이 바로 마무리
     ending.arrived = true; ending.answered = true;
     window.dispatchEvent(new CustomEvent('kakao:ending-done'));
+    window.dispatchEvent(new CustomEvent('kakao:ending-answered'));
     return ['{name아/야}...?', ...r];
   }
   // 그 외 말 → 기다리지 않고 바로 엔딩 질문

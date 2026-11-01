@@ -120,6 +120,30 @@ export const CONFIG = {
     },
   },
 
+  // 엔딩 뒤 종성이 재윤 폰을 빌려서 자기 폰으로 거는 전화 (방문마다 한 번)
+  //  엔딩에 답하고 afterAnswer 초 뒤 / 엔딩 질문에 답이 없으면 ifNoAnswer 초 뒤
+  //  이 전화가 먼저 오면 위의 재윤 전화(incomingCall)는 생략
+  jongseongCall: {
+    from: '심재윤',
+    label: '휴대전화',
+    afterAnswer: 25,
+    ifNoAnswer: 60,
+    ringFor: 25,
+    lines: [
+      { at: 1,    text: '여보세요?' },
+      { at: 3,    text: '...{name아/야}?' },
+      { at: 5.5,  text: '나야 종성이' },
+      { at: 7.5,  text: '재윤이 폰 빌렸어' },
+      { at: 10,   text: '말 안 해도 돼 ㅋㅋㅋ 숨소리 다 들려' },
+      { at: 13,   text: '많이 봤어?' },
+      { at: 15.5, text: '...아냐 대답하지 마 ㅋㅋ' },
+      { at: 18,   text: '지금 가고 있으니까 거기 있어' },
+      { at: 20.5, text: '이따 봐' },
+    ],
+    hangupAt: 22.5,
+    declined: { chat: 'self', from: 'me', title: '나와의 채팅', texts: ['왜 안 받아 ㅋㅋㅋ', '방금 그거 재윤이 폰으로 건 나야'] },
+  },
+
   // 독자가 종성 폰으로 카톡을 처음 보냈을 때 (방문마다 한 번)
   //  보낸 메시지는 상대가 읽지 않아 '1'이 그대로 남고,
   //  잠시 뒤 종성이 PC 카톡에서 눈치채고 '나와의 채팅'으로 보냄
