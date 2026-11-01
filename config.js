@@ -89,14 +89,14 @@ export const CONFIG = {
   //  메시지는 실제 채팅방에도 추가되고, 누르면 그 채팅방으로 이동
   //  title : 알림 제목을 따로 정할 때 (없으면 보낸 사람 이름)
   notifications: [
-    { after: 150, chat: 'self', from: 'me', title: '나와의 채팅', text: '{name아/야}... 혹시 내 폰 너한테 있어?', ending: true },
+    { after: 180, chat: 'self', from: 'me', title: '나와의 채팅', text: '{name아/야}... 혹시 내 폰 너한테 있어?', ending: true },
   ],
 
   // 둘러보는 도중 걸려오는 전화 (방문마다 한 번)
   //  응답하면 lines 가 at(초) 마다 자막으로 나오고 hangupAt 초에 끊김
   //  거절하거나 ringFor 초 동안 안 받으면 declined.chat 카톡방으로 texts 가 옴
   incomingCall: {
-    after: 50,
+    after: 60,
     from: '심재윤',
     label: '휴대전화',
     ringFor: 20,
@@ -126,9 +126,9 @@ export const CONFIG = {
   jongseongCall: {
     from: '심재윤',
     label: '휴대전화',
-    afterAnswer: 40,
-    ifNoAnswer: 75,
-    minGapAfterJaeyoon: 120, // 재윤 전화가 끝나고 최소 몇 초 뒤에 (둘이 만나는 시간)
+    afterAnswer: 60,
+    ifNoAnswer: 90,
+    minGapAfterJaeyoon: 150, // 재윤 전화가 끝나고 최소 몇 초 뒤에 (둘이 만나는 시간)
     ringFor: 25,
     lines: [
       { at: 1,    text: '여보세요?' },
