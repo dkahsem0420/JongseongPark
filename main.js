@@ -358,12 +358,25 @@ function showIncomingCall(c) {
   const record = (type, secs = 0) => {
     CALLS.push({ who: c.from, type, at: stamp(startedAt), dur: type === 'missed' ? undefined : `${Math.floor(secs / 60)}:${pad2(secs % 60)}` });
   };
-  const declined = (missed) => {
+  // 종성(PC 카톡) '나 폰 잃어버림' → 재윤 답장
+  const followUp = (answered, afterMs) => {
+    const f = c.followUp;
+    if (!f) return;
+    setTimeout(() => {
+      const end = endingNotif();
+      if (endingDone || (end && fired.has(end))) return; // 이미 폰 위치를 아는 상황이면 생략
+      receiveKakao(f.chat, 'me', t(f.me), { read: true });
+      const replies = answered ? f.ifAnswered : f.ifDeclined;
+      (replies || []).forEach((text, k) => setTimeout(() => fireNotification({ chat: f.chat, from: c.from, text }), 2200 + k * 1600));
+    }, afterMs + (f.delay || 8) * 1000);
+  };
+  const declined = () => {
     record('missed');
     close();
     const d = c.declined;
-    if (!d) return;
-    (d.texts || []).forEach((text, k) => timers.push(setTimeout(() => fireNotification({ chat: d.chat, from: c.from, text }), 3000 + k * 1600)));
+    const n = (d?.texts || []).length;
+    (d?.texts || []).forEach((text, k) => setTimeout(() => fireNotification({ chat: d.chat, from: c.from, text }), 3000 + k * 1600));
+    followUp(false, 3000 + n * 1600);
   };
   const hangup = () => {
     if (state !== 'talking') return;
@@ -373,12 +386,13 @@ function showIncomingCall(c) {
     ov.querySelector('.ic-sub').textContent = '통화 종료';
     clearInterval(tick);
     timers.push(setTimeout(close, 900));
+    followUp(true, 900);
   };
 
   ov.addEventListener('click', (e) => {
     const b = e.target.closest('[data-call]');
     if (!b) return;
-    if (state === 'ringing' && b.dataset.call === 'decline') { state = 'ended'; declined(false); }
+    if (state === 'ringing' && b.dataset.call === 'decline') { state = 'ended'; declined(); }
     else if (state === 'ringing' && b.dataset.call === 'accept') {
       state = 'talking'; answeredAt = Date.now();
       clearInterval(vib); navigator.vibrate?.(0);
@@ -398,7 +412,7 @@ function showIncomingCall(c) {
     } else if (state === 'talking' && b.dataset.call === 'end') hangup();
   });
   // 안 받으면 부재중
-  timers.push(setTimeout(() => { if (state === 'ringing') { state = 'ended'; declined(true); } }, (c.ringFor || 20) * 1000));
+  timers.push(setTimeout(() => { if (state === 'ringing') { state = 'ended'; declined(); } }, (c.ringFor || 20) * 1000));
 }
 
 function hideBanner() {

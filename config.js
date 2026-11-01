@@ -109,6 +109,15 @@ export const CONFIG = {
     ],
     hangupAt: 13.5,
     declined: { chat: 'jaeyoon', texts: ['야 박종성 어디야', '전화는 왜 끊냐'] },
+    // 그 뒤 종성이 PC 카톡으로 재윤에게 보내고, 재윤이 답함
+    //  (엔딩 '혹시 내 폰 너한테 있어?'가 이미 왔으면 생략)
+    followUp: {
+      chat: 'jaeyoon',
+      delay: 8, // 통화가 끝나거나 재윤 카톡이 온 뒤 몇 초 후
+      me: '나 폰 잃어버림',
+      ifAnswered: ['??', '전화는 어케 받았는데'],
+      ifDeclined: ['엥?', '어디서 잃어버려'],
+    },
   },
 
   // 독자가 종성 폰으로 카톡을 처음 보냈을 때 (방문마다 한 번)
