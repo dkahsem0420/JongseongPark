@@ -80,7 +80,7 @@ export const CONFIG = {
     icon: 'kakao',
     title: 'gf', // 'gf' = 종성이 폰에 저장된 이름 그대로 ({name} ♡)
     body: '선배 뭐해요?',
-    time: '30분 전', // 여주가 종성 폰을 갖게 되기 전에 보낸 메시지
+    time: '1시간 전', // 여주가 종성 폰을 갖게 되기 전에 보낸 메시지
     target: '#/app/kakao/chat/gf', // 알림을 누르면 열릴 화면 (여자친구 채팅방)
   },
 
@@ -91,6 +91,15 @@ export const CONFIG = {
   notifications: [
     { after: 300, chat: 'self', from: 'me', title: '나와의 채팅', text: '{name아/야}... 혹시 내 폰 너한테 있어?' },
   ],
+
+  // 독자가 종성 폰으로 카톡을 처음 보냈을 때 (방문마다 한 번)
+  //  보낸 메시지는 상대가 읽지 않아 '1'이 그대로 남고,
+  //  잠시 뒤 종성이 PC 카톡에서 눈치채고 '나와의 채팅'으로 보냄
+  firstSendNotice: {
+    after: 4, // 초
+    chat: 'self', from: 'me', title: '나와의 채팅',
+    texts: ['...?', '방금 내 카톡으로 뭐가 보내졌는데'],
+  },
 
   // 홈화면 디데이 위젯
   ddayWidget: {

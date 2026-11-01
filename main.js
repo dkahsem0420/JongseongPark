@@ -273,6 +273,18 @@ function fireNotification(n) {
   clearTimeout(bannerTimer);
   bannerTimer = setTimeout(hideBanner, 5500);
 }
+// 독자가 종성 폰으로 처음 카톡을 보내면 → 잠시 뒤 '나와의 채팅'으로 종성 반응
+let sentNoticed = false;
+window.addEventListener('kakao:sent', () => {
+  const f = CONFIG.firstSendNotice;
+  if (!f || sentNoticed) return;
+  sentNoticed = true;
+  const texts = f.texts || [f.text];
+  texts.forEach((text, k) => {
+    setTimeout(() => fireNotification({ ...f, text }), ((f.after || 4) + k * 1.5) * 1000);
+  });
+});
+
 function hideBanner() {
   banner.classList.remove('in');
   setTimeout(() => { if (!banner.classList.contains('in')) banner.hidden = true; }, 400);

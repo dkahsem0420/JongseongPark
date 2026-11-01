@@ -7,11 +7,8 @@
 //   with    : 대화 상대 목록. 'gf' = 여자친구, 그 외는 이름 그대로
 //   type    : 'channel' 이면 가게·업체 채널 모양 / 'self' 면 '나와의 채팅'
 //   unread  : 안 읽은 메시지 수 (목록의 빨간 숫자)
-//   replies : 독자가 입력창에 보낸 말에 오는 자동 답장 (위에서부터 먼저 맞는 것 하나)
-//             { when: ['집', '집이야'], reply: '...' }       ← 딱 이 말일 때
-//             { contains: ['밥'], reply: '...' }             ← 이 글자가 들어가기만 하면
-//             reply: ['첫 번째', '두 번째']                   ← 답장 여러 개 연달아
-//             (띄어쓰기, 끝의 ?!~ㅠ 같은 문장부호는 무시하고 비교)
+//   replies : (선택) 독자가 보낸 말에 오는 자동 답장. 지금은 '몰래 보는 중'이라 쓰지 않음
+//             { when: ['집'], reply: '...' } / { contains: ['밥'], reply: ['..', '..'] }
 //
 //  [메시지]
 //   { date: '2026-10-30' }                         ← 날짜 줄 (이후 메시지는 이 날짜)
@@ -31,18 +28,6 @@ export const KAKAO_CHATS = [
     id: 'gf',
     with: ['gf'],
     unread: 1,
-    replies: [
-      { contains: ['사랑해'], reply: '저도.. 사랑해요♡' },
-      { contains: ['보고싶', '보고 싶'], reply: '저두 보고싶어요ㅠㅠ' },
-      { contains: ['좋아해'], reply: '제가 더 좋아할 걸요!!!' },
-      { contains: ['너랑톡', '너랑 톡', '너랑카톡', '너랑 카톡'], reply: 'ㅋㅋㅋ 그얘기가 아니자나요' },
-      { contains: ['넌뭐해', '넌 뭐해', '너는뭐해', '너는 뭐해', '넌뭐하', '너는뭐하'], reply: '전 그냥 누워있었어요ㅎㅎ,,' },
-      { when: ['너는', '넌', '너는?', '넌?'], reply: '전 그냥 누워있었어요ㅎㅎ,,' },
-      { contains: ['밥'], reply: '뭐 먹구 있어요?' },
-      { contains: ['헬스', '운동'], reply: ['헐 선배가 운동을?', '오운완 인증샷ㄱㄱ'] },
-      { when: ['집이야', '집'], reply: '보고 싶은데..' },
-      { when: ['학교야', '학교'], reply: '우리 언제 만나여' },
-    ],
     messages: [
       // ── 10/2 고백한 날 → 데이트 끝나고 자정 넘어서 ──
       { date: '2026-10-03' },
@@ -84,22 +69,20 @@ export const KAKAO_CHATS = [
       { from: 'gf', time: '02:58', text: '잘 자요 선배!!' },
       { from: 'gf', time: '03:04', text: '♡' },
       { from: 'me', time: '09:47', text: '지금 봤어' },
-      { from: 'me', time: '09:47', text: '아침부터 이거 보고 혼자 웃고 있음' },
+      { from: 'me', time: '09:47', text: '눈뜨자마자 보고 한 백번째 다시 읽고 있네' },
       { from: 'me', time: '09:48', text: '고마워 {name아/야}' },
       { from: 'me', time: '09:48', text: '다음엔 진짜 완벽하게 해볼게' },
-      { from: 'gf', time: '10:15', text: 'ㅋㅋㅋ 기대할게요' },
+      { from: 'me', time: '09:48', text: '내가 진짜 좋아해' },
+      { from: 'gf', time: '10:15', text: '다음이 어딨어여 ㅋㅋㅋ 이미 사귀는데' },
+      { from: 'gf', time: '10:15', text: '앞으로 잘 부탁해요 선배..' },
 
       // ── 보고싶다 / 새벽 보이스톡 ──
       { date: '2026-10-09' },
-      { from: 'gf', time: '23:58', text: '선배 자요?' },
-      { from: 'me', time: '23:58', text: '아니' },
-      { from: 'me', time: '23:58', text: '왜 안 자' },
-      { from: 'gf', time: '23:59', text: '그냥요' },
-      { from: 'gf', time: '23:59', text: '보고싶어서요..' },
+      { from: 'me', time: '23:57', text: '자?' },
+      { from: 'gf', time: '23:58', text: '아뇨 안 자요ㅎㅎ' },
+      { from: 'me', time: '23:58', text: '목소리 듣고 싶은데 전화할까' },
+      { from: 'gf', time: '23:59', text: '헉… 네 잠만요' },
       { date: '2026-10-10' },
-      { from: 'me', time: '00:00', text: '나도 보고싶어' },
-      { from: 'me', time: '00:01', text: '전화할까?' },
-      { from: 'gf', time: '00:01', text: '넹' },
       { from: 'me', time: '00:01', call: { dur: '1:52:10' } },
       { from: 'gf', time: '01:54', text: '잘 자요 선배' },
       { from: 'me', time: '01:54', text: '너도 잘 자' },
@@ -155,7 +138,7 @@ export const KAKAO_CHATS = [
       { from: 'me', time: '12:17', text: '저번에 갔던 곳 근처' },
       { from: 'gf', time: '12:18', text: '넹ㅎㅎ' },
       { date: '2026-11-01' },
-      { from: 'gf', time: '21:11', text: '선배 뭐해요?' },
+      { from: 'gf', time: '20:41', text: '선배 뭐해요?' },
     ],
   },
 

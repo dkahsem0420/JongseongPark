@@ -233,23 +233,22 @@ export default function create(ctx) {
 
       const list = typed.get(chat.id) || [];
       typed.set(chat.id, list);
-      const mine = { from: 'me', text, d: now(), unread: 1, raw: true };
+      // 상대가 읽지 않으니 '1'이 그대로 남음 (나와의 채팅은 숫자 없음)
+      const mine = { from: 'me', text, d: now(), unread: chat.type === 'self' ? 0 : 1, raw: true };
       list.push(mine);
       draw();
 
-      // 1초 뒤 읽음 → 미리 써 둔 답장이 있으면 조금 뒤 답장
-      setTimeout(() => {
-        mine.unread = 0;
-        draw();
-        const replies = findReply(chat, text);
-        // 답장이 여러 개면 1초 간격으로 차례대로
-        (replies || []).forEach((r, k) => {
-          setTimeout(() => {
-            list.push({ from: chat.with[0], text: r, d: now(), raw: false });
-            draw();
-          }, 1300 + k * 1000);
-        });
-      }, 1000);
+      // 미리 써 둔 자동 답장이 있는 방만 답장 (지금은 없음)
+      (findReply(chat, text) || []).forEach((r, k) => {
+        setTimeout(() => {
+          mine.unread = 0;
+          list.push({ from: chat.with[0], text: r, d: now(), raw: false });
+          draw();
+        }, 2300 + k * 1000);
+      });
+
+      // 다른 사람에게 처음 보냈을 때 → 종성이 PC 카톡으로 눈치챔 (main.js 가 처리)
+      if (chat.type !== 'self') window.dispatchEvent(new CustomEvent('kakao:sent', { detail: chat.id }));
     });
 
     return p;
