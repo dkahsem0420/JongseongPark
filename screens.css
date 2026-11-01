@@ -217,3 +217,39 @@
 .banner.in { transform: none; }
 /* PC 폰 프레임에서는 다이내믹 아일랜드 아래로 */
 @media (min-width: 521px) { .banner { top: 54px; } }
+
+/* ── 걸려오는 전화 ── */
+.call-ov {
+  position: absolute; inset: 0; z-index: 89; color: #fff;
+  display: flex; flex-direction: column; align-items: center;
+  padding: calc(var(--sb-h) + var(--safe-top) + 40px) 0 calc(60px + var(--safe-bottom));
+  background: linear-gradient(180deg, #3a3f4a 0%, #23262d 55%, #121418 100%);
+  opacity: 0; transform: scale(1.04); transition: opacity .3s ease, transform .3s ease;
+}
+.call-ov.in { opacity: 1; transform: none; }
+.call-head { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.ic-name { font-size: 34px; font-weight: 400; letter-spacing: -.5px; }
+.ic-sub { font-size: 17px; color: rgba(255,255,255,.65); font-variant-numeric: tabular-nums; }
+.call-ov.ringing .call-head { animation: ringPulse 1.6s ease-in-out infinite; }
+@keyframes ringPulse { 50% { opacity: .75; } }
+.call-captions { flex: 1; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; padding: 0 28px; }
+.call-captions p { max-width: 100%; padding: 10px 16px; border-radius: 16px; background: rgba(255,255,255,.12); font-size: 18px; line-height: 1.35; text-align: center; animation: capIn .35s ease both; }
+.call-captions p:not(:last-child) { opacity: .5; font-size: 15px; }
+@keyframes capIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.call-grid { display: none; grid-template-columns: repeat(3, 1fr); gap: 22px 26px; margin-bottom: 40px; }
+.call-grid span { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.call-grid i { width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.14); font-style: normal; }
+.call-grid i b { font-size: 12px; letter-spacing: 2px; font-weight: 400; }
+.call-grid small { font-size: 13px; }
+.call-ring-btns { display: flex; justify-content: space-between; width: 100%; padding: 0 52px; }
+.call-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; color: #fff; }
+.call-btn > svg { box-sizing: content-box; padding: 19px; border-radius: 50%; }
+.call-btn.decline > svg, .call-btn.end > svg { background: #FF3B30; }
+.call-btn.accept > svg { background: #34C759; }
+.call-btn small { font-size: 14px; }
+.call-btn.end { display: none; }
+.call-ov.talking .call-ring-btns { display: none; }
+.call-ov.talking .call-grid { display: grid; }
+.call-ov.talking .call-btn.end { display: flex; }
+.call-ov.talking .call-captions { flex: 0 0 auto; min-height: 150px; margin: 20px 0; }
+.call-ov.talking .call-head { margin-bottom: auto; }

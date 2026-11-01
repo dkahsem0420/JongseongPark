@@ -6,6 +6,7 @@
 //   title   : 채팅방 이름. 1:1 채팅이면 생략 가능(상대 이름이 자동으로 들어감)
 //   with    : 대화 상대 목록. 'gf' = 여자친구, 그 외는 이름 그대로
 //   type    : 'channel' 이면 가게·업체 채널 모양 / 'self' 면 '나와의 채팅'
+//   readsTyped : true 면 독자가 보낸 메시지를 상대가 읽기만 함 ('1'이 사라지고 답장은 없음)
 //   unread  : 안 읽은 메시지 수 (목록의 빨간 숫자)
 //   replies : (선택) 독자가 보낸 말에 오는 자동 답장. 지금은 '몰래 보는 중'이라 쓰지 않음
 //             { when: ['집'], reply: '...' } / { contains: ['밥'], reply: ['..', '..'] }
@@ -218,6 +219,19 @@ export const KAKAO_CHATS = [
       { from: 'me', time: '10:25', text: '잘 지내길 바랄게' },
       { from: '정유진', time: '10:41', text: '알겠어' },
       { from: '정유진', time: '10:41', text: '행복해' },
+    ],
+  },
+
+  // ── 심재윤 1:1 (전화 거절하면 여기로 카톡이 옴) ──
+  {
+    id: 'jaeyoon',
+    with: ['심재윤'],
+    readsTyped: true,
+    messages: [
+      { date: '2026-10-25' },
+      { from: '심재윤', time: '15:02', text: '내 충전기 너네 집에 있냐' },
+      { from: 'me', time: '15:40', text: 'ㅇㅇ 다음에 줄게' },
+      { from: '심재윤', time: '15:41', text: 'ㄱㅅ' },
     ],
   },
 

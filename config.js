@@ -92,6 +92,25 @@ export const CONFIG = {
     { after: 150, chat: 'self', from: 'me', title: '나와의 채팅', text: '{name아/야}... 혹시 내 폰 너한테 있어?', ending: true },
   ],
 
+  // 둘러보는 도중 걸려오는 전화 (방문마다 한 번)
+  //  응답하면 lines 가 at(초) 마다 자막으로 나오고 hangupAt 초에 끊김
+  //  거절하거나 ringFor 초 동안 안 받으면 declined.chat 카톡방으로 texts 가 옴
+  incomingCall: {
+    after: 70,
+    from: '심재윤',
+    label: '휴대전화',
+    ringFor: 20,
+    lines: [
+      { at: 1,    text: '여보세요?' },
+      { at: 3,    text: '박종성 어디야?' },
+      { at: 6.5,  text: '...?' },
+      { at: 8.5,  text: '뭐야 잘못 연결됐나' },
+      { at: 11,   text: '야 박종성' },
+    ],
+    hangupAt: 13.5,
+    declined: { chat: 'jaeyoon', texts: ['야 박종성 어디야', '전화는 왜 끊냐'] },
+  },
+
   // 독자가 종성 폰으로 카톡을 처음 보냈을 때 (방문마다 한 번)
   //  보낸 메시지는 상대가 읽지 않아 '1'이 그대로 남고,
   //  잠시 뒤 종성이 PC 카톡에서 눈치채고 '나와의 채팅'으로 보냄

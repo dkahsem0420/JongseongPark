@@ -14,6 +14,8 @@ import { receiveKakao, kakaoUnreadTotal, kakaoRoomOpen, markEnding } from './app
 import { personName } from './people.js';
 import { ICONS } from './icons.js';
 import { preloadImages } from './preload.js';
+import { CALLS } from './data-calls.js';
+import { now } from './fmt.js';
 
 const phone = document.getElementById('phone');
 const screen = document.getElementById('screen');
@@ -192,6 +194,7 @@ function showLock() {
 function onUnlock(target) {
   session.unlocked = true;
   scheduleNotifications();
+  scheduleIncomingCall();
   preloadImages();
   statusbar.hideTime(false);
   home.el.classList.add('wake');
@@ -257,7 +260,7 @@ function scheduleNotifications() {
 const fired = new Set(); // 알림은 각각 한 번만
 let endingDone = false; // 엔딩 대화가 이미 끝났으면 남은 알림은 생략
 function fireNotification(n) {
-  if (endingDone) return;
+  if (endingDone && n.chat === 'self') return; // 엔딩 대화가 끝났으면 나와의 채팅 알림만 생략
   if (n.ending || n.after) { if (fired.has(n)) return; }
   // 잠겨 있거나 이름 입력 중이면 풀릴 때까지 기다림
   if (!session.unlocked || !getVisitor() || lock.visible) { setTimeout(() => fireNotification(n), 2000); return; }
@@ -301,6 +304,102 @@ window.addEventListener('kakao:ending-now', () => {
   if (end) setTimeout(() => fireNotification(end), 2500);
 });
 window.addEventListener('kakao:ending-done', () => { endingDone = true; sentNoticed = true; });
+
+// ── 걸려오는 전화 (config.js 의 incomingCall) ──
+let callScheduled = false;
+function scheduleIncomingCall() {
+  const c = CONFIG.incomingCall;
+  if (!c || callScheduled) return;
+  callScheduled = true;
+  setTimeout(() => showIncomingCall(c), (c.after || 70) * 1000);
+}
+const pad2 = (n) => String(n).padStart(2, '0');
+const stamp = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+const PHONE_DOWN = `<svg viewBox="0 0 24 24" width="34" height="34"><path d="M12 9c-2.6 0-5.1.5-7.4 1.5-.9.4-1.5 1.3-1.5 2.3v1.6c0 .7.6 1.2 1.3 1.1l3.2-.5c.6-.1 1-.6 1-1.2v-1.6c1.1-.4 2.2-.5 3.4-.5s2.3.1 3.4.5v1.6c0 .6.4 1.1 1 1.2l3.2.5c.7.1 1.3-.4 1.3-1.1v-1.6c0-1-.6-1.9-1.5-2.3C17.1 9.5 14.6 9 12 9z" fill="#fff"/></svg>`;
+const PHONE_UP = `<svg viewBox="0 0 24 24" width="32" height="32"><path d="M7.6 3.5c-.8 0-2 .9-2.3 2-.5 1.9.4 5 3.4 8s6.2 4 8.1 3.4c1.1-.3 2-1.5 2-2.3 0-.4-.3-.8-.7-1l-2.6-1.5c-.4-.2-1-.2-1.3.2l-.9 1c-.2.2-.6.3-.8.1-.9-.5-1.8-1.2-2.6-2s-1.5-1.7-2-2.6c-.2-.3-.1-.6.1-.8l1-.9c.4-.3.5-.9.2-1.3L8.6 4.2c-.2-.4-.6-.7-1-.7z" fill="#fff"/></svg>`;
+const CALL_BTNS = [['소리 끔', 'M5 9h3l4-3.5v13L8 15H5zM16 9l5 6M21 9l-5 6'], ['키패드', ''], ['스피커', 'M5 9h3l4-3.5v13L8 15H5zM15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11'], ['FaceTime', 'M3 7.5h11v9H3zM14 11l6-3.5v9L14 13'], ['통화 추가', 'M12 5v14M5 12h14'], ['연락처', 'M12 11.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5']];
+
+function showIncomingCall(c) {
+  // 잠겨 있거나 다른 화면 중이면 풀릴 때까지 기다림
+  if (!session.unlocked || !getVisitor() || lock.visible) { setTimeout(() => showIncomingCall(c), 2000); return; }
+  const startedAt = now();
+  const ov = el(`
+    <div class="call-ov ringing">
+      <div class="call-head">
+        <span class="ic-name">${T(c.from)}</span>
+        <span class="ic-sub">${T(c.label || '휴대전화')}</span>
+      </div>
+      <div class="call-captions"></div>
+      <div class="call-grid">${CALL_BTNS.map(([l, d]) => `<span><i>${d ? `<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>` : '<b>⋮⋮⋮</b>'}</i><small>${l}</small></span>`).join('')}</div>
+      <div class="call-ring-btns">
+        <button class="call-btn decline" data-call="decline">${PHONE_DOWN}<small>거절</small></button>
+        <button class="call-btn accept" data-call="accept">${PHONE_UP}<small>응답</small></button>
+      </div>
+      <button class="call-btn end" data-call="end">${PHONE_DOWN}</button>
+    </div>`);
+  screen.insertBefore(ov, statusbar.el);
+  statusbar.setStyle('light');
+  indicator.classList.remove('dark');
+  requestAnimationFrame(() => ov.classList.add('in'));
+
+  const timers = [];
+  const vib = setInterval(() => navigator.vibrate?.([400, 200, 400]), 2000);
+  navigator.vibrate?.([400, 200, 400]);
+  let state = 'ringing', answeredAt = 0, tick = null;
+
+  const close = () => {
+    clearInterval(vib); clearInterval(tick); timers.forEach(clearTimeout);
+    navigator.vibrate?.(0);
+    ov.classList.remove('in');
+    setTimeout(() => ov.remove(), 350);
+    const st = cur ? (cur.mod.statusStyle || 'dark') : 'light';
+    statusbar.setStyle(st); indicator.classList.toggle('dark', !!cur && st === 'dark');
+  };
+  const record = (type, secs = 0) => {
+    CALLS.push({ who: c.from, type, at: stamp(startedAt), dur: type === 'missed' ? undefined : `${Math.floor(secs / 60)}:${pad2(secs % 60)}` });
+  };
+  const declined = (missed) => {
+    record('missed');
+    close();
+    const d = c.declined;
+    if (!d) return;
+    (d.texts || []).forEach((text, k) => timers.push(setTimeout(() => fireNotification({ chat: d.chat, from: c.from, text }), 3000 + k * 1600)));
+  };
+  const hangup = () => {
+    if (state !== 'talking') return;
+    state = 'ended';
+    const secs = Math.max(1, Math.round((Date.now() - answeredAt) / 1000));
+    record('in', secs);
+    ov.querySelector('.ic-sub').textContent = '통화 종료';
+    clearInterval(tick);
+    timers.push(setTimeout(close, 900));
+  };
+
+  ov.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-call]');
+    if (!b) return;
+    if (state === 'ringing' && b.dataset.call === 'decline') { state = 'ended'; declined(false); }
+    else if (state === 'ringing' && b.dataset.call === 'accept') {
+      state = 'talking'; answeredAt = Date.now();
+      clearInterval(vib); navigator.vibrate?.(0);
+      ov.classList.remove('ringing'); ov.classList.add('talking');
+      const sub = ov.querySelector('.ic-sub');
+      sub.textContent = '00:00';
+      tick = setInterval(() => { const s = Math.floor((Date.now() - answeredAt) / 1000); sub.textContent = `${pad2(Math.floor(s / 60))}:${pad2(s % 60)}`; }, 500);
+      const box = ov.querySelector('.call-captions');
+      (c.lines || []).forEach((ln) => timers.push(setTimeout(() => {
+        if (state !== 'talking') return;
+        const p = document.createElement('p');
+        p.textContent = t(ln.text);
+        box.appendChild(p);
+        while (box.children.length > 3) box.firstElementChild.remove();
+      }, ln.at * 1000)));
+      timers.push(setTimeout(hangup, (c.hangupAt || 12) * 1000));
+    } else if (state === 'talking' && b.dataset.call === 'end') hangup();
+  });
+  // 안 받으면 부재중
+  timers.push(setTimeout(() => { if (state === 'ringing') { state = 'ended'; declined(true); } }, (c.ringFor || 20) * 1000));
+}
 
 function hideBanner() {
   banner.classList.remove('in');

@@ -270,6 +270,9 @@ export default function create(ctx) {
       list.push(mine);
       draw();
 
+      // 읽기만 하는 방 (예: 재윤) → 2초 뒤 '1'만 사라짐
+      if (chat.readsTyped) setTimeout(() => { mine.unread = 0; draw(); }, 2000);
+
       // 미리 써 둔 자동 답장이 있는 방만 답장 (지금은 없음)
       (findReply(chat, text) || []).forEach((r, k) => {
         setTimeout(() => {
