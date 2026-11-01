@@ -255,7 +255,9 @@ function scheduleNotifications() {
   }
 }
 const fired = new Set(); // 알림은 각각 한 번만
+let endingDone = false; // 엔딩 대화가 이미 끝났으면 남은 알림은 생략
 function fireNotification(n) {
+  if (endingDone) return;
   if (n.ending || n.after) { if (fired.has(n)) return; }
   // 잠겨 있거나 이름 입력 중이면 풀릴 때까지 기다림
   if (!session.unlocked || !getVisitor() || lock.visible) { setTimeout(() => fireNotification(n), 2000); return; }
@@ -291,6 +293,14 @@ window.addEventListener('kakao:sent', () => {
   const end = (CONFIG.notifications || []).find((x) => x.ending);
   if (end && f.endingAfter) setTimeout(() => fireNotification(end), ((f.after || 4) + f.endingAfter) * 1000);
 });
+
+// 나와의 채팅에서 엔딩이 앞당겨지거나 끝난 경우 (app-kakao.js 가 알려 줌)
+const endingNotif = () => (CONFIG.notifications || []).find((x) => x.ending);
+window.addEventListener('kakao:ending-now', () => {
+  const end = endingNotif();
+  if (end) setTimeout(() => fireNotification(end), 2500);
+});
+window.addEventListener('kakao:ending-done', () => { endingDone = true; sentNoticed = true; });
 
 function hideBanner() {
   banner.classList.remove('in');

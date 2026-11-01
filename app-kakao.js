@@ -95,13 +95,32 @@ export function receiveKakao(chatId, from, text, { read = false } = {}) {
 const ending = { arrived: false, answered: false };
 export const markEnding = () => { ending.arrived = true; };
 
-function endingReply(chat, text) {
-  if (chat.type !== 'self' || !ending.arrived || ending.answered || !chat.afterEnding) return null;
+// allowAny=false 면 '아무 말' 규칙은 빼고 (인정·잡아뗌 같은 말에만) 반응
+function matchEnding(chat, text, allowAny) {
   const key = norm(text);
-  const r = chat.afterEnding.find((x) => x.any || (x.contains || []).some((w) => key.includes(norm(w))));
-  if (!r) return null;
-  ending.answered = true;
-  return Array.isArray(r.reply) ? r.reply : [r.reply];
+  const r = (chat.afterEnding || []).find((x) => (x.any ? allowAny : (x.contains || []).some((w) => key.includes(norm(w)))));
+  return r ? (Array.isArray(r.reply) ? r.reply : [r.reply]) : null;
+}
+
+// 나와의 채팅에 독자가 쓴 말 → 종성(PC 카톡) 반응. 반환: 보낼 답장 목록 또는 null
+function selfChatReaction(chat, text) {
+  if (chat.type !== 'self' || ending.answered || !chat.afterEnding) return null;
+  if (ending.arrived) {
+    // 엔딩 질문 뒤 → 아무 말에나 마무리
+    ending.answered = true;
+    return matchEnding(chat, text, true);
+  }
+  // 엔딩 전 ('...?' 를 보고 바로 답한 경우 등)
+  const r = matchEnding(chat, text, false);
+  if (r) {
+    // 이미 인정/잡아뗐으니 질문 없이 바로 마무리
+    ending.arrived = true; ending.answered = true;
+    window.dispatchEvent(new CustomEvent('kakao:ending-done'));
+    return ['{name아/야}...?', ...r];
+  }
+  // 그 외 말 → 기다리지 않고 바로 엔딩 질문
+  window.dispatchEvent(new CustomEvent('kakao:ending-now'));
+  return [];
 }
 
 const isOpenRoom = (chatId) => location.hash === `#/app/kakao/chat/${chatId}`;
@@ -260,12 +279,13 @@ export default function create(ctx) {
         }, 2300 + k * 1000);
       });
 
-      // 엔딩 뒤 나와의 채팅에 답하면 → 종성이 PC 카톡으로 답장 (한 번)
-      const er = endingReply(chat, text);
+      // 나와의 채팅 → 종성이 PC 카톡으로 반응
+      const er = selfChatReaction(chat, text);
       if (er) {
         er.forEach((r, k) => setTimeout(() => receiveKakao(chat.id, 'me', r, { read: true }), 2500 + k * 1800));
         return;
       }
+      if (chat.type === 'self') return;
       // 처음 보냈을 때 → 종성이 PC 카톡으로 눈치챔 (main.js 가 처리, 방문마다 한 번)
       window.dispatchEvent(new CustomEvent('kakao:sent', { detail: chat.id }));
     });
