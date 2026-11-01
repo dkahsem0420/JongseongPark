@@ -315,6 +315,7 @@ let callScheduled = false;
 let jongseongCalled = false; // 종성이 재윤 폰으로 걸었으면 재윤 전화는 생략
 let callActive = false;
 let lastCallEnd = 0; // 전화가 연달아 오지 않게 (끝나고 최소 10초)
+let jaeyoonCallEnd = 0; // 재윤 전화가 끝난 시각 (종성 전화는 이로부터 minGapAfterJaeyoon 초 뒤에)
 function scheduleIncomingCall() {
   const c = CONFIG.incomingCall;
   if (!c || callScheduled) return;
@@ -340,7 +341,8 @@ const CALL_BTNS = [['소리 끔', 'M5 9h3l4-3.5v13L8 15H5zM16 9l5 6M21 9l-5 6'],
 
 function showIncomingCall(c) {
   // 잠겨 있거나 다른 화면 중이면 풀릴 때까지 기다림
-  if (!session.unlocked || !getVisitor() || lock.visible || callActive || Date.now() - lastCallEnd < 10000) { setTimeout(() => showIncomingCall(c), 2000); return; }
+  const waitGap = c === CONFIG.jongseongCall && jaeyoonCallEnd && Date.now() - jaeyoonCallEnd < (c.minGapAfterJaeyoon || 0) * 1000;
+  if (!session.unlocked || !getVisitor() || lock.visible || callActive || waitGap || Date.now() - lastCallEnd < 10000) { setTimeout(() => showIncomingCall(c), 2000); return; }
   callActive = true;
   const startedAt = now();
   const ov = el(`
@@ -372,6 +374,7 @@ function showIncomingCall(c) {
     navigator.vibrate?.(0);
     callActive = false;
     lastCallEnd = Date.now();
+    if (c === CONFIG.incomingCall) jaeyoonCallEnd = lastCallEnd;
     ov.classList.remove('in');
     setTimeout(() => ov.remove(), 350);
     const st = cur ? (cur.mod.statusStyle || 'dark') : 'light';

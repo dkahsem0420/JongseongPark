@@ -96,7 +96,7 @@ export const CONFIG = {
   //  응답하면 lines 가 at(초) 마다 자막으로 나오고 hangupAt 초에 끊김
   //  거절하거나 ringFor 초 동안 안 받으면 declined.chat 카톡방으로 texts 가 옴
   incomingCall: {
-    after: 70,
+    after: 50,
     from: '심재윤',
     label: '휴대전화',
     ringFor: 20,
@@ -126,8 +126,9 @@ export const CONFIG = {
   jongseongCall: {
     from: '심재윤',
     label: '휴대전화',
-    afterAnswer: 25,
-    ifNoAnswer: 60,
+    afterAnswer: 40,
+    ifNoAnswer: 75,
+    minGapAfterJaeyoon: 120, // 재윤 전화가 끝나고 최소 몇 초 뒤에 (둘이 만나는 시간)
     ringFor: 25,
     lines: [
       { at: 1,    text: '여보세요?' },
