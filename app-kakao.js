@@ -263,7 +263,7 @@ export default function create(ctx) {
       // 엔딩 뒤 나와의 채팅에 답하면 → 종성이 PC 카톡으로 답장 (한 번)
       const er = endingReply(chat, text);
       if (er) {
-        er.forEach((r, k) => setTimeout(() => receiveKakao(chat.id, 'me', r, { read: true }), 2500 + k * 1500));
+        er.forEach((r, k) => setTimeout(() => receiveKakao(chat.id, 'me', r, { read: true }), 2500 + k * 1800));
         return;
       }
       // 처음 보냈을 때 → 종성이 PC 카톡으로 눈치챔 (main.js 가 처리, 방문마다 한 번)
